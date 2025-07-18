@@ -72,22 +72,22 @@ const UserLayout = () => {
   };
 
   return (
-    <div className="">
+    <div className="w-full container bg-white p-4 mx-auto mt-5 rounded-md">
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-white mt-4">
+        <aside className="w-64 bg-white">
           <div className="flex items-center gap-3 mb-2">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={user?.avatar} alt={user?.full_name || user?.user_name} />
-              <AvatarFallback>
-                <UserIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />
+            <Avatar className="h-10 w-10 rounded-md">
+              <AvatarImage className="rounded-md" src={user?.avatar} alt={user?.full_name || user?.user_name} />
+              <AvatarFallback className="rounded-md">
+                <UserIcon className="h-6 w-6 "/>
               </AvatarFallback>
             </Avatar>
             <span className="font-medium text-lg text-gray-900 dark:text-gray-100">
               {user ? user.full_name || user.user_name : "Khách"}
             </span>
           </div>
-          <nav className="space-y-1 border-r pr-4 border-gray-200">
+          <nav className="space-y-1 pr-4 border-gray-200">
             {menuItems.map((item) => (
               <Button
                 key={item.key}
@@ -106,7 +106,7 @@ const UserLayout = () => {
           </nav>
         </aside>
         {/* Main Content */}
-        <main className="flex-1 p-4 bg-white dark:bg-gray-800">
+        <main className="flex-1 bg-white dark:bg-gray-800 border-l pl-4">
           <Outlet />
         </main>
       </div>

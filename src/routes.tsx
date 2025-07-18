@@ -44,6 +44,7 @@ import Cart from "./pages/Website/Cart/Cart";
 import BrandList from "./pages/Admin/Brands/Brands";
 import CheckoutPage from "./pages/Website/Cart/Checkout";
 import PaymentMethodList from "./pages/Admin/PaymentMethods/PaymentMethods";
+import { CheckoutPayment } from "./pages/Website/Cart/CheckoutPayment";
 
 // export const categoryLoader = async ({ params }: LoaderFunctionArgs) => {
 //     const { slug } = params;
@@ -140,6 +141,10 @@ const router = createBrowserRouter([
             {
                 path: "checkout",
                 element: <CheckoutPage />,
+            },
+            {
+                path: "checkout/payment-qr",
+                element: <CheckoutPayment />,
             },
         ],
     },

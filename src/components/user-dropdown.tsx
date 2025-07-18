@@ -59,7 +59,7 @@ export function UserDropdown({ user,role="user" }: { user: User | null,role?:str
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem className="cursor-pointer">
+          <DropdownMenuItem className="cursor-pointer"  onClick={()=>navigate("/customer/info")}>
             <BadgeCheck />
             Tài khoản
           </DropdownMenuItem>

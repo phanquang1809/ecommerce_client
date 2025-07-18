@@ -109,6 +109,7 @@ export default function CheckoutPage() {
     product_id: item.productId,
     product_name: item.productName,
     variant_id: item.variantId,
+    image: item.image,
     quantity: item.quantity,
     price: Number(item.unitPriceAtTime),
     total_price: itemTotal,
@@ -132,10 +133,9 @@ export default function CheckoutPage() {
         );
 
         setCart(updatedItems);
-
         // 2. Xoá danh sách selectedItems
         clearSelection();
-        navigate("/");
+        navigate("/customer/order-history");
       }
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
@@ -143,7 +143,7 @@ export default function CheckoutPage() {
   };
   const [selectedMethod, setSelectedMethod] = useState<string>("cod");
   return (
-    <div className="container mx-auto mt-5 ">
+    <div className="container mx-auto mt-5">
       <h1 className="text-2xl font-bold mb-5">Thanh toán</h1>
       <div className="w-full flex gap-4">
         <div className="flex-1 ">

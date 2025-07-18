@@ -233,7 +233,17 @@ button {
     height: 0;
   }
 }
-
+@keyframes qr-scan {
+  0% {
+    top: 0%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+.animate-qr-scan {
+  animation: qr-scan 4s linear infinite;
+}
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
