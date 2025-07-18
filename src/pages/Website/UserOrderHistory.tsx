@@ -134,7 +134,7 @@ export default function UserOrderHistory() {
                           Mua lại
                         </Button>
                       )}
-                      {order.payment_status === "unpaid" && (
+                      {order.payment_status === "pending" && (
                         <Button
                           variant="outline"
                           size="sm"
