@@ -134,6 +134,7 @@ const adminSidebarData = {
           icon: Settings2,
           items: [
             { title: "Vận chuyển", url: "/admin/transporters" },
+            { title: "Phương thức thanh toán", url: "/admin/payment-methods" },
           ],
         },
       ],

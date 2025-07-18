@@ -2,7 +2,7 @@ import { formatCurrency } from "@/utils/format";
 import { useNavigate } from "react-router-dom";
 import { Product } from "../types/product.type";
 import NProgress from "nprogress";
-import { getProductByShop } from "@/services/productServices";
+import { getProductByShop } from "@/services/website/productServices";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";

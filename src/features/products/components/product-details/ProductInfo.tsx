@@ -99,10 +99,12 @@ export default function ProductInfo({
   return (
     <div className="w-full flex flex-col gap-5 bg-white p-5 rounded-md">
       <div>
-       {product.brand &&  <div className="flex items-center gap-1  mb-2">
-        <p className="text-sm ">Thương hiệu: </p>
-        <p className="text-sm text-blue-600 ">{product?.brand}</p>
-        </div>}
+        {product.brand && (
+          <div className="flex items-center gap-1  mb-2">
+            <p className="text-sm ">Thương hiệu: </p>
+            <p className="text-sm text-blue-600 ">{product?.brand}</p>
+          </div>
+        )}
         <h2 className="text-xl font-semibold mb-2">{product?.name}</h2>
         {/* Đánh giá */}
         <div className="flex items-center gap-2">
@@ -144,7 +146,6 @@ export default function ProductInfo({
               const selectedEntries = Object.entries(selectedOptions).filter(
                 ([key]) => key !== option.id.toString() // bỏ qua option hiện tại để xét tổ hợp trước đó
               );
-
               const matchedVariant = product?.variants?.find((variant) => {
                 // Kiểm tra xem biến thể có đầy đủ option đang chọn + option hiện tại không
                 const hasAllSelected = selectedEntries.every(([optId, val]) =>
@@ -157,6 +158,11 @@ export default function ProductInfo({
                 );
                 return hasAllSelected && hasThisOption && variant.stock > 0;
               });
+              const imageVariant = product?.variants?.find((variant) =>
+                variant.attributes.some(
+                  (attr) => attr.id === option.id && attr.value === value
+                )
+              )?.image;
 
               const isDisabled = !matchedVariant;
               const isColor = option.slug === "mau-sac";
@@ -172,10 +178,10 @@ export default function ProductInfo({
                   )}
                 >
                   {/* Nếu có ảnh thì hiển thị ảnh + tên */}
-                  {isColor &&matchedVariant?.image ? (
+                  {isColor && imageVariant ? (
                     <>
                       <img
-                        src={matchedVariant.image}
+                        src={imageVariant}
                         alt={value}
                         className="w-4 h-4 object-cover"
                       />

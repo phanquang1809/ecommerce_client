@@ -32,7 +32,7 @@ export default function ProductDescriptions({
       >
         <div
           ref={contentRef}
-          className="align-baseline prose max-w-none text-sm"
+          className="align-baseline prose max-w-none text-sm font-lexend"
           dangerouslySetInnerHTML={{ __html: descriptions }}
         />
 

@@ -14,7 +14,7 @@ import { Trash2, Minus, Plus, AlertTriangle, Loader } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useCallback } from "react";
 import debounce from "lodash/debounce";
-import { getProductByShop } from "@/services/productServices";
+import { getProductByShop } from "@/services/website/productServices";
 import NProgress from "nprogress";
 import { CartItem as CartItemType } from "@/types";
 import { toast } from "sonner";

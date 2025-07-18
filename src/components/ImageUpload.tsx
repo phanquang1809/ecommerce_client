@@ -83,6 +83,7 @@ const ImageUpload = ({ onImageUpload, defaultImage }: ImageUploadProps) => {
             }
             selectedImages={selectedImage ? [selectedImage] : []}
             maxSelectedImages={1}
+            isDialog={true}
           />
          <DialogFooter className="">
             <DialogClose asChild>

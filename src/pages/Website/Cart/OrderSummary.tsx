@@ -58,7 +58,7 @@ const totalPayment = totalPrice + totalShippingFee - fakeDiscount;
         </div>
       </div>
 
-      {/* Chi tiết từng shop */}
+      Chi tiết từng shop
           {Object.entries(grouped).map(([shopId, shopItems]) => {
         const shop = shopInfo.find((s) => s.id === Number(shopId));
         const subtotal = shopItems.reduce(

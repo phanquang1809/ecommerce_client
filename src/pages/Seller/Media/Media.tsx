@@ -56,15 +56,14 @@ import {
 import AddMediaFile from "@/features/media/components/AddMediaFile";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-const Media = ({
-  onSelectImages,
-  selectedImages,
-  maxSelectedImages,
-}: {
+interface MediaProps {
+isDialog?: boolean;
   onSelectImages?: (images: string[]) => void;
   selectedImages?: string[];
   maxSelectedImages?: number;
-}) => {
+}
+
+const Media = ({ isDialog=false, onSelectImages, selectedImages, maxSelectedImages }: MediaProps) => {
   const [breadcrumb, setBreadcrumb] = useState<{ id: number; name: string }[]>(
     []
   );
@@ -180,7 +179,7 @@ const Media = ({
     }
     setCurrentFolderId(id);
   }, []);
-
+  
   const createFolderMutation = useMutation({
     mutationFn: createMediaFolder,
     onSuccess: (response) => {
@@ -239,7 +238,6 @@ const Media = ({
       parent_id: currentFolder?.id || null,
     });
   }, [folderName, currentFolder, createFolderMutation]);
-  console.log(currentFolder);
 
   const handleDeleteMediaFolder = useCallback(() => {
     if (!currentFolder) {
@@ -295,9 +293,10 @@ const Media = ({
   }, [selectedItems, queryClient, currentFolder]);
 
   const isLoading = isRootLoading || isFolderDetailsLoading;
-
+  console.log(isDialog);
+  
   return (
-    <div className="h-full flex flex-col pt-5 overflow-auto">
+    <div className={cn("flex flex-col pt-5 overflow-auto",isDialog?"h-[calc(100vh-200px)]":"h-full")}>
       <div className="border rounded-md p-5 flex flex-col flex-1 h-full">
         {/* Header */}
         <div className="flex items-center justify-between pb-2">

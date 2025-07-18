@@ -1,4 +1,4 @@
-import { authApi } from "./apiServices";
+import { authApi } from "../apiServices";
 
 export type OrderItem = {
   product_id: number;
@@ -16,6 +16,7 @@ export type OrderGroup = {
   total_amount: number;
   discount_amount: number;
   final_amount: number;
+  payment_method: string;
   shipping_address: string;
 };
 

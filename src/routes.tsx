@@ -43,6 +43,7 @@ import AttributeList from "@/pages/Admin/Attributes/Attributes";
 import Cart from "./pages/Website/Cart/Cart";
 import BrandList from "./pages/Admin/Brands/Brands";
 import CheckoutPage from "./pages/Website/Cart/Checkout";
+import PaymentMethodList from "./pages/Admin/PaymentMethods/PaymentMethods";
 
 // export const categoryLoader = async ({ params }: LoaderFunctionArgs) => {
 //     const { slug } = params;
@@ -85,6 +86,8 @@ const router = createBrowserRouter([
                     // { path: "products/add", element: <AddProduct /> },
                     { path: "profile", element: <AdminProfile /> },
                     { path: "transporters", element: <Transporters /> },
+                    { path: "payment-methods", element: <PaymentMethodList /> },
+
                     { path: "media", element: <Media /> },
                 ],
             },

@@ -1,5 +1,5 @@
 import { ProductDetails } from "@/pages/Website/ProductDetails/productdetails.type";
-import {api} from "./apiServices";
+import {api} from "../apiServices";
 import { Product } from "@/features/products/types/product.type";
 interface GetProductBySlugResponse {
   status: string;

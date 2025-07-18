@@ -1,5 +1,5 @@
 import { CartItem } from "@/types";
-import { authApi } from "./apiServices";
+import { authApi } from "../apiServices";
 
 export async function getCart(): Promise<{
   status: string;

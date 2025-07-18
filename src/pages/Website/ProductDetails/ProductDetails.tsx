@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import ProductImages from "@/features/products/components/product-details/ProductImages";
 import ProductInfo from "@/features/products/components/product-details/ProductInfo";
-import { getProductByShop } from "@/services/productServices";
+import { getProductByShop } from "@/services/website/productServices";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { ProductDetails as ProductDetailsProps } from "./productdetails.type";

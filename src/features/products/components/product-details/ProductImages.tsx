@@ -110,24 +110,25 @@ useEffect(() => {
   return (
     <div className="flex gap-4 bg-white p-5 rounded-md sticky top-20">
       {/* Thumbs on the left */}
-      <div className="w-25 lg:h-[430px] h-[300px] flex flex-col gap-2 items-center">
+      <div className="flex flex-col">
+        <div className="w-25 h-[460px]  flex flex-col gap-2 items-center">
         <Swiper
           onSwiper={(swiper) => {
             setThumbsSwiper(swiper);
             thumbsRef.current = swiper;
           }}
           direction="vertical"
-          slidesPerView={images.length >= 4 ? 4 : images.length}
-          spaceBetween={10}
+          slidesPerView={4}
           watchSlidesProgress={true}
           modules={[Thumbs]}
+          className="w-full !h-full"
         >
           {variantImage && (
             <SwiperSlide className="flex-shrink-0 w-full aspect-square">
               <img
                 src={variantImage}
                 alt="Variant image"
-                className={`w-full  object-cover border rounded-md cursor-pointer transition-all duration-200 hover:opacity-50 ${
+                className={`w-full aspect-square object-contain border rounded cursor-pointer transition-all duration-200 hover:opacity-50 ${
                   activeIndex === 0 ? "opacity-50 " : ""
                 }`}
               />
@@ -141,17 +142,18 @@ useEffect(() => {
               <img
                 src={img}
                 alt={`Thumb ${idx + 1}`}
-                className={`w-full h-full object-cover border rounded-md cursor-pointer transition-all duration-200 hover:opacity-50 ${
+                className={`w-full aspect-square object-contain border rounded cursor-pointer transition-all duration-200 hover:opacity-50 ${
                   idx === activeIndex + (variantImage ? -1 : 0)
-                    ? "opacity-50 "
+                    ? "opacity-50"
                     : ""
                 }`}
               />
             </SwiperSlide>
           ))}
         </Swiper>
+      </div>
         {images.length > 4 && (
-          <div className="flex mt-2 gap-1 w-full">
+          <div className="flex gap-1 w-full">
             <Button
             size="sm"
 
@@ -225,7 +227,7 @@ useEffect(() => {
                 <img
                   src={img}
                   alt={`Ảnh sản phẩm ${idx + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
                 <div
                   className="absolute inset-0 pointer-events-none transition-opacity duration-200 "

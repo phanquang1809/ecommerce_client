@@ -225,6 +225,7 @@ const ImageUpload = ({ onImageUpload, images }: ImageUploadProps) => {
             onSelectImages={handleSelectImages}
             selectedImages={images}
             maxSelectedImages={9}
+            isDialog
           />
           <DialogFooter>
             <DialogClose asChild>

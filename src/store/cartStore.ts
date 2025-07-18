@@ -7,7 +7,7 @@ import {
   updateQuantity,
   clearCart,
   getCart,
-} from "@/services/cartServices";
+} from "@/services/website/cartServices";
 import { toast } from "sonner";
 
 interface CartState {

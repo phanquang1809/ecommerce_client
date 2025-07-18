@@ -7,10 +7,17 @@ import { TicketPercent } from "lucide-react";
 export default function CheckoutShopGroup({
   shop,
   items,
+  shippingFee
 }: {
   shop: { id: number; name: string; url: string } | undefined;
   items: CartItem[];
+  shippingFee:number;
 }) {
+  const totalPrice = items.reduce(
+    (sum, item) => sum + item.unitPriceAtTime * item.quantity,
+    0
+  );
+  const totalAmount = totalPrice + shippingFee;
   return (
     <div className="border border-dashed border-blue-600 mb-4 p-2 rounded">
       <h2 className="text-md font-semibold mb-3 text-blue-600">
@@ -52,7 +59,18 @@ export default function CheckoutShopGroup({
           </li>
         ))}
       </ul>
-      <div className="w-full flex justify-end border-t border-blue-600 border-dashed pt-2">
+      <div className="w-full flex justify-between items-end border-t border-blue-600 border-dashed pt-2">
+        <div className="flex flex-col gap-2 text-sm">
+         <span>
+           Tổng tiền: {formatCurrency(totalPrice)}
+         </span>
+          <span>
+           Phí vận chuyển: {formatCurrency(shippingFee??0)}
+         </span>
+         <span>
+           Tổng thanh toán: {formatCurrency(totalAmount)}
+         </span>
+        </div>
         <Button
           variant="outline"
           className="rounded  !text-blue-600 border-blue-600 border-dashed hover:bg-blue-50"

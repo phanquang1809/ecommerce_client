@@ -4,8 +4,8 @@ import { CartItem } from "@/types";
 import CheckoutShopGroup from "./CheckoutShopGroup";
 import { useEffect, useMemo, useState } from "react";
 import useUserStore from "@/store/userStore";
-import { createOrders, OrderGroup } from "@/services/orderServices";
-import { getShippingFee } from "@/services/cartServices";
+import { createOrders, OrderGroup } from "@/services/website/orderServices";
+import { getShippingFee } from "@/services/website/cartServices";
 import ShippingAddress from "./ShippingAddress ";
 import { useNavigate } from "react-router-dom";
 import PaymentMethod from "./PaymentMethod";
@@ -82,44 +82,48 @@ export default function CheckoutPage() {
     shop_info.find((shop) => shop.id === shopId);
 
   const handleCheckout = async () => {
-    const groupedOrders = selectedProducts.reduce((acc, item) => {
-      const shopId = item.shopId;
-      if (!acc[shopId]) {
-        acc[shopId] = {
-          shop_id: shopId,
-          items: [],
-          shipping_fee: shippingFees[shopId] ?? 0,
-          total_amount: 0,
-          discount_amount: 100000,
-          final_amount: 0,
-          shipping_address:
-            (user?.default_address?.address ?? "") +
-            ", " +
-            (user?.default_address?.ward ?? "") +
-            ", " +
-            (user?.default_address?.district ?? "") +
-            ", " +
-            (user?.default_address?.province ?? ""),
-        };
-      }
-      const itemTotal = item.quantity * Number(item.unitPriceAtTime);
-      acc[shopId].items.push({
-        product_id: item.productId,
-        product_name: item.productName,
-        variant_id: item.variantId,
-        quantity: item.quantity,
-        price: Number(item.unitPriceAtTime),
-        total_price: itemTotal,
-      });
+   const groupedOrders = selectedProducts.reduce((acc, item) => {
+  const shopId = item.shopId;
+  if (!acc[shopId]) {
+    acc[shopId] = {
+      shop_id: shopId,
+      items: [],
+      shipping_fee: shippingFees[shopId] ?? 0,
+      total_amount: 0,
+      discount_amount: 100000,
+      final_amount: 0,
+      payment_method: selectedMethod, // 👈 THÊM DÒNG NÀY
+      shipping_address:
+        (user?.default_address?.address ?? "") +
+        ", " +
+        (user?.default_address?.ward ?? "") +
+        ", " +
+        (user?.default_address?.district ?? "") +
+        ", " +
+        (user?.default_address?.province ?? ""),
+    };
+  }
 
-      acc[shopId].total_amount += itemTotal;
-      acc[shopId].final_amount +=
-        itemTotal + acc[shopId].shipping_fee - acc[shopId].discount_amount;
+  const itemTotal = item.quantity * Number(item.unitPriceAtTime);
+  acc[shopId].items.push({
+    product_id: item.productId,
+    product_name: item.productName,
+    variant_id: item.variantId,
+    quantity: item.quantity,
+    price: Number(item.unitPriceAtTime),
+    total_price: itemTotal,
+  });
 
-      return acc;
-    }, {} as Record<number, OrderGroup>);
+  acc[shopId].total_amount += itemTotal;
+  acc[shopId].final_amount +=
+    itemTotal + acc[shopId].shipping_fee - acc[shopId].discount_amount;
+
+  return acc;
+}, {} as Record<number, OrderGroup>);
+
 
     const orders = Object.values(groupedOrders);
+    
     try {
       const response = await createOrders(orders);
       if (response.status === "success") {
@@ -137,7 +141,7 @@ export default function CheckoutPage() {
       console.error("Lỗi khi đặt hàng:", error);
     }
   };
-
+  const [selectedMethod, setSelectedMethod] = useState<string>("cod");
   return (
     <div className="container mx-auto mt-5 ">
       <h1 className="text-2xl font-bold mb-5">Thanh toán</h1>
@@ -159,11 +163,11 @@ export default function CheckoutPage() {
               {Object.entries(grouped).map(([shopId, items]) => {
                 const shop = getShop(Number(shopId));
                 return (
-                  <CheckoutShopGroup key={shopId} shop={shop} items={items} />
+                  <CheckoutShopGroup key={shopId} shop={shop} items={items} shippingFee={shippingFees[Number(shopId)]||0} />
                 );
               })}
              </div>
-              <PaymentMethod/>
+              <PaymentMethod selectedMethod={selectedMethod} setSelectedMethod={setSelectedMethod}/>
             </div>
           )}
         </div>

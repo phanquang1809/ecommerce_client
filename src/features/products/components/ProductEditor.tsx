@@ -85,7 +85,7 @@ export function Plugins({
       {/* Toolbar plugins */}
       <ToolbarPlugin>
         {() => (
-          <div className="vertical-align-middle sticky top-0 z-10 flex gap-2 overflow-auto border-b p-1">
+          <div className="vertical-align-middle sticky top-0 z-10 flex gap-2 overflow-auto border-b p-1 ">
             <HistoryToolbarPlugin />
             <FontFormatToolbarPlugin format="bold" />
             <FontFormatToolbarPlugin format="italic" />
@@ -101,7 +101,7 @@ export function Plugins({
               <div className="">
                 <ContentEditable
                   placeholder={placeholder}
-                  className="ContentEditable__root relative block h-72 min-h-72 overflow-auto px-8 py-4 focus:outline-none"
+                  className="ContentEditable__root relative block h-72 min-h-72 overflow-auto px-8 py-4 focus:outline-none !font-lexend text-base"
                 />
               </div>
             </div>
