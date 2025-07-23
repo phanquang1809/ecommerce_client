@@ -6,6 +6,7 @@ import { getProductByShop } from "@/services/website/productServices";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ProductCardProps {
   product: Product;
@@ -14,26 +15,29 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, type="category" }) => {
   const navigate = useNavigate();
+const queryClient = useQueryClient();
 
-  const handleLinkClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    try {
+ const handleLinkClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+  e.preventDefault();
+  const queryKey = ["product-by-shop", product.shop_slug, product.slug];
+  try {
+    // Prefetch nếu chưa có trong cache
+    if (!queryClient.getQueryData(queryKey)) {
       NProgress.start();
-      const res = await getProductByShop(
-        product.slug || "",
-        product.shop_slug || ""
-      );
-      if (res?.status === "success") {
-        navigate(`/products/${product.shop_slug}/${product.slug}`, {
-          state: { data: res.data },
-        });
-      }
-    } catch (error) {
-      console.error("Không lấy được dữ liệu sản phẩm", error);
-    } finally {
-      NProgress.done();
+      await queryClient.prefetchQuery({
+        queryKey,
+        queryFn: () => getProductByShop(product.slug!, product.shop_slug!),
+        staleTime: 1000 * 60 * 5,
+      });
     }
-  };
+    navigate(`/products/${product.shop_slug}/${product.slug}`);
+  } catch (error) {
+    console.error("Lỗi khi prefetch sản phẩm", error);
+  }finally
+  {
+    NProgress.done();
+  }
+};
 
   const preferredVariant = product.variants.reduce((min, curr) => {
     const currPrice = Number(curr.discountPrice ?? curr.price);

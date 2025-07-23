@@ -154,6 +154,27 @@ const sellerSidebarData = {
         },
       ],
     },
+     {
+      id: "order-management",
+      title: "",
+      items: [
+        {
+          title: "Đơn hàng",
+          url: "",
+          icon: Package,
+          items: [
+            {
+              title: "Tất cả đơn hàng",
+              url: "/seller/orders",
+            },
+            // {
+            //   title: "Đơn hàng chưa xử lý",
+            //   url: "/seller/orders/pending",
+            // },
+          ],
+        },
+      ],
+    },
     {
       id: "product-management",
       title: "Quản lý sản phẩm",

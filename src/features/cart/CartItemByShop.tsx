@@ -39,7 +39,7 @@ export default function CartItemByShop({
       selectAll(newSelected);
     } else {
       const newSelected = selectedItems.filter(
-        (id) => !shopVariantIds.includes(id)
+        (id) => !shopVariantIds.includes(id) 
       );
       selectAll(newSelected);
     }

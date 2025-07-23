@@ -17,8 +17,11 @@ import { formatCurrency } from "@/utils/format";
 import useUserStore from "@/store/userStore";
 import { Separator } from "@/components/ui/separator";
 import { Link, useNavigate } from "react-router-dom";
+import VariantStockUpdatedListener, {
+  VariantStockUpdatedEvent,
+} from "./VariantStockUpdatedListener";
 export default function Cart() {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const {
     items,
     shop_info,
@@ -27,6 +30,7 @@ export default function Cart() {
     toggleSelectItem,
     loading,
     removeFromCart,
+    updateItemStock,
   } = useCartStore();
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const { user } = useUserStore();
@@ -68,6 +72,25 @@ export default function Cart() {
   const totalPrice = items
     .filter((item) => selectedItems.includes(item.variantId))
     .reduce((acc, item) => acc + item.unitPriceAtTime * item.quantity, 0);
+
+  const handleStockUpdate = (event: VariantStockUpdatedEvent) => {
+    const { variant_id, quantity, available_stock } = event;
+    updateItemStock(variant_id, quantity, available_stock);
+
+    const item = items.find((item) => item.variantId === variant_id);
+
+    if (!item) return;
+
+    if (available_stock === 0) {
+      toast.warning(`Sản phẩm “${item.productName}” đã tạm hết hàng`);
+      toggleSelectItem(variant_id);
+    } else if (item.quantity > available_stock) {
+      toast.warning(
+        `Số lượng của sản phẩm “${item.productName}” đã bị thay đổi`
+      );
+    }
+  };
+
   return (
     <div className="container mx-auto mt-5">
       <h2 className="text-2xl font-bold mb-5">GIỎ HÀNG</h2>
@@ -131,12 +154,23 @@ export default function Cart() {
               </div>
               <div className="text-sm">
                 <div className="flex items-center gap-1.5 font-semibold">
-                  <p className="">{user?.default_address?.customer_name || user?.user_name}</p>
+                  <p className="">
+                    {user?.default_address?.customer_name || user?.user_name}
+                  </p>
                   <Separator orientation="vertical" className="!h-4" />
-                  <p>{user?.default_address?.customer_phone_number || user?.phone}</p>
+                  <p>
+                    {user?.default_address?.customer_phone_number ||
+                      user?.phone}
+                  </p>
                 </div>
                 <p className="text-gray-600">
-                  {user?.default_address?.address + ", " + user?.default_address?.ward+ ", " + user?.default_address?.district + ", " + user?.default_address?.province}
+                  {user?.default_address?.address +
+                    ", " +
+                    user?.default_address?.ward +
+                    ", " +
+                    user?.default_address?.district +
+                    ", " +
+                    user?.default_address?.province}
                 </p>
               </div>
             </div>
@@ -154,7 +188,12 @@ export default function Cart() {
               </div>
               <Button
                 onClick={handleCheckout}
-                disabled={selectedItems.length === 0}
+                disabled={
+                  selectedItems.length === 0 ||
+                  items
+                    .filter((item) => selectedItems.includes(item.variantId))
+                    .some((item) => item.quantity === 0)
+                }
                 className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded font-semibold"
               >
                 Mua Hàng ({selectedItems.length})
@@ -232,6 +271,12 @@ export default function Cart() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {user?.id && (
+        <VariantStockUpdatedListener
+          userId={user.id}
+          onStockUpdate={handleStockUpdate}
+        />
+      )}
     </div>
   );
 }

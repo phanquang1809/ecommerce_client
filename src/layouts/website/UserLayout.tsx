@@ -14,10 +14,10 @@ import {
   StarIcon,
   UserCircleIcon,
   WalletIcon,
-  UserIcon,
 } from "@heroicons/react/24/outline";
 import useUserStore from "../../store/userStore";
 import { cn } from "@/lib/utils"; // Utility for conditional classNames (from shadcn/ui)
+import { UserRound } from "lucide-react";
 
 const menuItems = [
   {
@@ -33,7 +33,7 @@ const menuItems = [
   {
     label: "Lịch Sử Đơn Hàng",
     icon: DocumentTextIcon,
-    key: "/customer/order-history",
+    key: "/customer/order/history",
   },
   {
     label: "Yêu Thích",
@@ -72,15 +72,15 @@ const UserLayout = () => {
   };
 
   return (
-    <div className="w-full container bg-white p-4 mx-auto mt-5 rounded-md">
-      <div className="flex">
+    <div className="w-full container  p-4 mx-auto mt-5 rounded-md">
+      <div className="flex gap-2">
         {/* Sidebar */}
-        <aside className="w-64 bg-white">
-          <div className="flex items-center gap-3 mb-2">
-            <Avatar className="h-10 w-10 rounded-md">
+        <aside className="w-64 h-fit">
+          <div className="flex items-start gap-3 mb-2">
+            <Avatar className="h-15 w-15 rounded-md">
               <AvatarImage className="rounded-md" src={user?.avatar} alt={user?.full_name || user?.user_name} />
-              <AvatarFallback className="rounded-md">
-                <UserIcon className="h-6 w-6 "/>
+              <AvatarFallback className="rounded-md bg-blue-900 text-white">
+                <UserRound className="h-10 w-10 "/>
               </AvatarFallback>
             </Avatar>
             <span className="font-medium text-lg text-gray-900 dark:text-gray-100">
@@ -92,10 +92,11 @@ const UserLayout = () => {
               <Button
                 key={item.key}
                 variant="ghost"
+                size="lg"
                 className={cn(
-                  "w-full justify-start gap-2 text-gray-700 dark:text-gray-200",
+                  "w-full justify-start gap-2 text-gray-700 hover:bg-gray-200",
                   location.pathname === item.key &&
-                    "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    "bg-gray-200 text-gray-900 "
                 )}
                 onClick={() => handleNavigate(item.key)}
               >
@@ -106,7 +107,7 @@ const UserLayout = () => {
           </nav>
         </aside>
         {/* Main Content */}
-        <main className="flex-1 bg-white dark:bg-gray-800 border-l pl-4">
+        <main className="flex-1">
           <Outlet />
         </main>
       </div>

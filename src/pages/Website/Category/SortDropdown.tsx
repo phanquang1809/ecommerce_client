@@ -6,13 +6,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { sortOptions } from "./data";
 
 interface SortDropdownProps {
   onSortChange: (value: string) => void;
   value: string;
 }
-
+const sortOptions = [
+  { value: "newest", label: "Mới nhất" },
+  { value: "oldest", label: "Cũ nhất" },
+  { value: "featured", label: "Nổi bật nhất" },
+  { value: "sale", label: "Bán chạy" },
+  { value: "price-asc", label: "Giá thấp → cao" },
+  { value: "price-desc", label: "Giá cao → thấp" },
+];
 const SortDropdown: React.FC<SortDropdownProps> = ({ onSortChange, value }) => {
   return (
     <Select onValueChange={onSortChange} value={value}>

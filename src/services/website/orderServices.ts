@@ -1,12 +1,14 @@
 import { Meta } from "@/types";
 import { authApi } from "../apiServices";
-import { AxiosError } from "axios";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { Order } from "../seller/orderServices";
 
 export type OrderItem = {
   product_id: number;
   image: string;
   product_name: string;
   variant_id: number;
+  variant_name: string;
   quantity: number;
   price: number;
   total_price: number;
@@ -21,22 +23,12 @@ export type OrderGroup = {
   discount_amount: number;
   final_amount: number;
   payment_method: string;
-  shipping_address: string;
+  address_id: number;
+  // shipping_address: string;
 };
 
 // Đơn hàng đã tạo (hiển thị lịch sử)
-export type Order = {
-  id: number;
-  order_number: string;
-  shop_id: number;
-  final_amount: number;
-  status: string;
-  payment_method: string;
-  shipping_address: string;
-  payment_status: string;
-  created_at: string;
-  items: OrderItem[];
-};
+
 
 // ✅ Hàm tạo nhiều đơn hàng
 export async function createOrders(orders: OrderGroup[]): Promise<{
@@ -53,31 +45,53 @@ export async function getOrdersByStatus({
   page = 1,
   limit = 10,
 }: {
-  status?: string;
-  page?: number;
+  status: string;
+  page: number;
   limit?: number;
 }): Promise<{
-  status?: string;
-  message?: string;
-  orders?: Order[];
-  meta?: Meta;
+  status: string;
+  message: string;
+  orders: Order[];
+  meta: Meta;
 }> {
   try {
     const res = await authApi.get(
       `/orders?page=${page}&limit=${limit}${status ? `&status=${status}` : ""}`
     );
-    return {
-      status: "success",
-      orders: res.data.orders,
-      meta: res.data.meta, // backend cần trả về `meta`
-    };
+    return res.data;
+    ;
   } catch (error) {
-    const axiosError = error as AxiosError<{ status: string; message: string }>;
-    return {
-      status: axiosError.response?.data.status,
-      message:
-        axiosError.response?.data.message ||
-        "Lỗi không xác định, vui lòng thử lại!",
-    };
+      console.error("Lỗi khi lấy danh mục:", error);
+      throw new Error("Không thể lấy danh sách đơn hàng");
   }
+  
 }
+export function useOrdersInfinite(status: string = "",limit: number = 5) {
+  return useInfiniteQuery({
+    queryKey: ["orders", status],
+    queryFn: ({ pageParam = 1 }) =>
+      getOrdersByStatus({ page: pageParam, status, limit }),
+    getNextPageParam: (lastPage) => {
+      const current = lastPage.meta.current_page;
+      const last = lastPage.meta.last_page;
+      return current < last ? current + 1 : undefined;
+    },
+    initialPageParam: 1, // 👈 THÊM DÒNG NÀY
+    staleTime: 0,
+  });
+}
+
+export const getOrderDetail = async (orderNumber: string): Promise<Order> => {
+  const response = await authApi.get("/orders/" + orderNumber);
+  if (!response.data.data) {
+    throw new Error(response.data.message || "Không tìm thấy đơn hàng");
+  }
+  return response.data.data;
+};
+export const useOrderDetail = (orderNumber: string) => {
+  return useQuery({
+    queryKey: ["order-detail", orderNumber],
+    queryFn: () => getOrderDetail(orderNumber),
+    enabled: !!orderNumber,
+  });
+};

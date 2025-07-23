@@ -55,11 +55,31 @@ export const register = async (email: string, code: string) => {
     };
   }
 };
-export const createUser = async (email: string, password: string,c_password: string,token: string) => {
+export const createUser = async (
+  email: string,
+  password: string,
+  c_password: string,
+  token: string,
+  phone?: string,
+  address?: {
+    province: { label: string; value: string };
+    district: { label: string; value: string };
+    ward: { label: string; value: string };
+    addressDetail: string;
+  }
+) => {
   try {
-    const response = await api.post("/auth/create", { email, password, c_password,token });
-    const { status, message,user } = response.data;
-    return { status, message,user };
+    const response = await api.post("/auth/create", {
+      email,
+      password,
+      c_password,
+      token,
+      phone,
+      address, // Đảm bảo backend cũng chấp nhận field này
+    });
+
+    const { status, message, user } = response.data;
+    return { status, message, user };
   } catch (error) {
     const axiosError = error as AxiosError<{ status: string; message: string }>;
     return {
@@ -70,6 +90,7 @@ export const createUser = async (email: string, password: string,c_password: str
     };
   }
 };
+
 export const verifyEmail = async (email: string, code: string,seller: boolean) => {
   try {
     const response = await api.post("/auth/verify-email", { email, code,seller });
@@ -180,4 +201,3 @@ export const forgotPassword = async (
     };
   }
 };
- 

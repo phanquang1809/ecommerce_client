@@ -9,6 +9,10 @@ import { getShippingFee } from "@/services/website/cartServices";
 import ShippingAddress from "./ShippingAddress ";
 import { useNavigate } from "react-router-dom";
 import PaymentMethod from "./PaymentMethod";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import VariantStockUpdatedListener, { VariantStockUpdatedEvent } from "./VariantStockUpdatedListener";
+import { toast } from "sonner";
 
 export default function CheckoutPage() {
   const { items, shop_info, selectedItems, setCart, clearSelection } =
@@ -17,9 +21,14 @@ export default function CheckoutPage() {
 
   // Lọc ra các sản phẩm được chọn để thanh toán
   const selectedProducts = useMemo(
-    () => items.filter((item) => selectedItems.includes(item.variantId)),
-    [items, selectedItems]
-  );
+  () =>
+    items.filter(
+      (item) =>
+        selectedItems.includes(item.variantId) && item.quantity > 0
+    ),
+  [items, selectedItems]
+);
+
 
   const [shippingFees, setShippingFees] = useState<Record<number, number>>({});
 
@@ -38,6 +47,8 @@ export default function CheckoutPage() {
     const { province, district, address } = user.default_address;
     return `${province}-${district}-${address}`;
   }, [user?.default_address]);
+  const [openDialog, setOpenDialog] = useState(false);
+  const {updateItemStock,toggleSelectItem} = useCartStore();
 
   useEffect(() => {
     const fetchShippingFees = async () => {
@@ -92,15 +103,8 @@ export default function CheckoutPage() {
       total_amount: 0,
       discount_amount: 100000,
       final_amount: 0,
-      payment_method: selectedMethod, // 👈 THÊM DÒNG NÀY
-      shipping_address:
-        (user?.default_address?.address ?? "") +
-        ", " +
-        (user?.default_address?.ward ?? "") +
-        ", " +
-        (user?.default_address?.district ?? "") +
-        ", " +
-        (user?.default_address?.province ?? ""),
+      payment_method: selectedMethod,
+      address_id: user?.default_address?.id ?? 0,
     };
   }
 
@@ -110,6 +114,7 @@ export default function CheckoutPage() {
     product_name: item.productName,
     variant_id: item.variantId,
     image: item.image,
+    variant_name: item.variantOptions,
     quantity: item.quantity,
     price: Number(item.unitPriceAtTime),
     total_price: itemTotal,
@@ -124,7 +129,6 @@ export default function CheckoutPage() {
 
 
     const orders = Object.values(groupedOrders);
-    
     try {
       const response = await createOrders(orders);
       if (response.status === "success") {
@@ -135,19 +139,36 @@ export default function CheckoutPage() {
         setCart(updatedItems);
         // 2. Xoá danh sách selectedItems
         clearSelection();
-        navigate("/customer/order-history");
+        navigate("/customer/order/history");
       }
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
     }
   };
+  const handleStockUpdate = (event: VariantStockUpdatedEvent) => {
+  const { variant_id, quantity,available_stock } = event;
+  updateItemStock(variant_id, quantity,available_stock);
+
+  const item = items.find((item) => item.variantId === variant_id);
+
+  if (!item) return;
+
+ if (available_stock === 0) {
+    setOpenDialog(true);
+    toggleSelectItem(variant_id);
+  } else if (item.quantity > available_stock) {
+    toast.warning(
+      `Số lượng của sản phẩm “${item.productName}” đã bị thay đổi`
+    );
+  }
+};
   const [selectedMethod, setSelectedMethod] = useState<string>("cod");
   return (
     <div className="container mx-auto mt-5">
       <h1 className="text-2xl font-bold mb-5">Thanh toán</h1>
       <div className="w-full flex gap-4">
         <div className="flex-1 ">
-          {selectedItems.length === 0 ? (
+          {selectedProducts.length === 0 ? (
             <div className="flex items-center justify-center h-full text-red-500 rounded font-semibold">
               Bạn chưa chọn sản phẩm trong giỏ hàng. Vui lòng thực hiện lại.
             </div>
@@ -183,6 +204,28 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="">Thông báo</DialogTitle>
+          <DialogDescription>
+            Một số sản phẩm trong đơn hàng của bạn đã bị thay đổi.
+            Vui lòng cập nhật lại giỏ hàng trước khi tiếp tục thanh toán.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex justify-end gap-2 pt-4">
+          <Button variant="outline" className="rounded" onClick={() => setOpenDialog(false)}>
+            Hủy
+          </Button>
+          <Button className="bg-blue-600 hover:bg-blue-500 text-white rounded" onClick={()=>navigate("/cart")}>
+            Quay lại giỏ hàng
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+ {user?.id && (
+  <VariantStockUpdatedListener userId={user.id} onStockUpdate={handleStockUpdate} />
+)}
     </div>
   );
 }

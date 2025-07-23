@@ -13,7 +13,6 @@ import UserWishlist from "@/pages/Website/UserWishlist";
 import UserWallet from "@/pages/Website/UserWallet";
 import UserLayout from "@/layouts/website/UserLayout";
 import UserDashboard from "@/pages/Website/UserDashboard";
-import UserOrderHistory from "@/pages/Website/UserOrderHistory";
 import UserAddress from "@/pages/Website/UserAddress";
 import UserVoucher from "@/pages/Website/UserVoucher";
 import ProtectedRoute from "@/routes/ProtectedRotue";
@@ -45,6 +44,10 @@ import BrandList from "./pages/Admin/Brands/Brands";
 import CheckoutPage from "./pages/Website/Cart/Checkout";
 import PaymentMethodList from "./pages/Admin/PaymentMethods/PaymentMethods";
 import { CheckoutPayment } from "./pages/Website/Cart/CheckoutPayment";
+import OrderList from "./pages/Seller/Orders/Orders";
+import { OrderDetail } from "./pages/Seller/Orders/OrderDetail";
+import OrderHistory from "@/pages/Website/Orders/OrderHistory";
+import { OrderDetails } from "./pages/Website/Orders/OrderDetails";
 
 // export const categoryLoader = async ({ params }: LoaderFunctionArgs) => {
 //     const { slug } = params;
@@ -131,7 +134,8 @@ const router = createBrowserRouter([
                             { path: "wishlist", element: <UserWishlist /> },
                             { path: "walmart-wallet", element: <UserWallet /> },
                             { path: "dashboard", element: <UserDashboard /> },
-                            { path: "order-history", element: <UserOrderHistory /> },
+                            { path: "order/history", element: <OrderHistory /> },
+                            { path: "order/view/:number", element: <OrderDetails /> },
                             { path: "address", element: <UserAddress /> },
                             { path: "voucher", element: <UserVoucher /> },
                         ],
@@ -171,6 +175,8 @@ const router = createBrowserRouter([
                 element: <AdminLayout />,
                 children: [
                     { path: "", element: <SellerDashboard /> },
+                    { path: "orders", element: <OrderList /> },
+                    { path: "orders/:number", element: <OrderDetail /> },
                     { path: "products", element: <ProductList /> },
                     { path: "products/add", element: <ProductAddEdit /> },
                     { path: "products/edit/:slug", element: <ProductAddEdit /> },

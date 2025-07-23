@@ -49,11 +49,20 @@ export default function Login() {
     password: "",
     confirmPassword: "",
   });
+  const [phoneNumber, setPhoneNumber] = useState("");
+const [phoneError, setPhoneError] = useState("");
+
+const [address, setAddress] = useState({
+  province: { label: "", value: "" },
+  district: { label: "", value: "" },
+  ward: { label: "", value: "" },
+  addressDetail: "",
+});
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const emailParam = searchParams.get("email");
     const tokenParam = searchParams.get("token");
-  
+    
     const path = location.pathname.split("/")[location.pathname.split("/").length - 1];
     
     if (path.startsWith("create") && emailParam && tokenParam) {
@@ -156,34 +165,72 @@ export default function Login() {
   };
   const { setUser, setInitialized } = useUserStore();
   const handleCreacteAccount = async () => {
-    const newErrors = { ...error };
-    if (!password.trim()) {
-      newErrors.password = "Mật khẩu không được để trống";
-    } else if (password.length < 6) {
-      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
-    }
-    if (!confirmPassword.trim()) {
-      newErrors.confirmPassword = "Xác nhận mật khẩu không được để trống";
-    } else if (confirmPassword !== password) {
-      newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
-    }
-    setError(newErrors);
-    if (!newErrors.password && !newErrors.confirmPassword) {
-      setIsLoading(true);
-      const result = await createUser(email, password, confirmPassword,token);
-      setIsLoading(false);
-      if (result.status === "success") {
-        setPassword("");
-        setConfirmPassword("");
-        setEmail("");
-        navigate("/");
-        setUser(result.user);
-        setInitialized(true);
-      } else {
-        toast.error(result.message);
-      }
+  const newErrors = { ...error };
+
+  if (!password.trim()) {
+    newErrors.password = "Mật khẩu không được để trống";
+  } else if (password.length < 6) {
+    newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+  }
+  if (!confirmPassword.trim()) {
+    newErrors.confirmPassword = "Xác nhận mật khẩu không được để trống";
+  } else if (confirmPassword !== password) {
+    newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+  }
+
+  if (!phoneNumber.trim()) {
+    setPhoneError("Vui lòng nhập số điện thoại");
+  } else if (!/^0\d{9}$/.test(phoneNumber)) {
+    setPhoneError("Số điện thoại không hợp lệ");
+  } else {
+    setPhoneError("");
+  }
+
+  const isAddressValid =
+    address.province.value &&
+    address.district.value &&
+    address.ward.value &&
+    address.addressDetail;
+
+  if (!isAddressValid) {
+    toast.error("Vui lòng chọn đầy đủ địa chỉ");
+    return;
+  }
+
+  setError(newErrors);
+
+  if (
+    !newErrors.password &&
+    !newErrors.confirmPassword &&
+    !phoneError &&
+    isAddressValid
+  ) {
+    setIsLoading(true);
+
+    // Gọi API createUser (bạn nên sửa `createUser` để nhận thêm phone + address nếu chưa có)
+    const result = await createUser(
+      email,
+      password,
+      confirmPassword,
+      token,
+      phoneNumber,
+      address // Truyền thêm nếu backend chấp nhận
+    );
+
+    setIsLoading(false);
+    if (result.status === "success") {
+      setPassword("");
+      setConfirmPassword("");
+      setEmail("");
+      navigate("/");
+      setUser(result.user);
+      setInitialized(true);
+    } else {
+      toast.error(result.message);
     }
   }
+};
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage("");
@@ -252,17 +299,24 @@ export default function Login() {
                 isLoading={isLoading}
               />
             )}
-            {step === "createAccount" && (
-              <CreateAccount
-                password={password}
-                setPassword={setPassword}
-                confirmPassword={confirmPassword}
-                setConfirmPassword={setConfirmPassword}
-                error={error}
-                setError={setError}
-                isLoading={isLoading}
-              />
-            )}
+           {step === "createAccount" && (
+  <CreateAccount
+    password={password}
+    setPassword={setPassword}
+    confirmPassword={confirmPassword}
+    setConfirmPassword={setConfirmPassword}
+    error={error}
+    setError={setError}
+    isLoading={isLoading}
+    phoneNumber={phoneNumber}
+    setPhoneNumber={setPhoneNumber}
+    phoneError={phoneError}
+    setPhoneError={setPhoneError}
+    address={address}
+    setAddress={setAddress}
+  />
+)}
+
             {message && <p className="text-red-600 text-sm">{message}</p>}
             <Button
               type="submit"

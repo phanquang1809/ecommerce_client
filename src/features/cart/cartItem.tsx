@@ -12,7 +12,7 @@ import {
 import { formatCurrency } from "@/utils/format";
 import { Trash2, Minus, Plus, AlertTriangle, Loader } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import debounce from "lodash/debounce";
 import { getProductByShop } from "@/services/website/productServices";
 import NProgress from "nprogress";
@@ -35,12 +35,16 @@ export default function CartItem({
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const navigate = useNavigate();
   const { removeFromCart, loading, updateQuantity } = useCartStore();
+
+  const isOutOfStock = item.product_stock === 0;
+
   const debouncedUpdateQuantity = useCallback(
     debounce((qty: number) => {
       updateQuantity(item.variantId, qty);
     }, 400),
     [item.variantId, updateQuantity]
   );
+
   const handleChangeQuantity = (qty: number) => {
     if (qty > item.product_stock) {
       toast.error("Số lượng còn lại là " + item.product_stock);
@@ -87,11 +91,16 @@ export default function CartItem({
     }
   };
 
+  useEffect(() => {
+    setLocalQuantity(item.quantity);
+  }, [item.quantity]);
+
   return (
     <>
-      <div className="flex items-center justify-between py-2">
+      <div className="flex items-center justify-between py-2 opacity-100">
         <div className="flex items-center gap-3 w-1/2">
           <Checkbox
+            disabled={isOutOfStock}
             checked={selectedItems.includes(item.variantId)}
             onCheckedChange={() => toggleSelectItem(item.variantId)}
             className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
@@ -111,43 +120,52 @@ export default function CartItem({
                 {item.productName}
               </Link>
               <p className="text-sm text-gray-500">{item.variantOptions}</p>
+              {isOutOfStock && (
+                <p className="text-sm text-red-500 font-semibold mt-1">
+                  Sản phẩm đã hết hàng
+                </p>
+              )}
             </div>
           </div>
         </div>
         <div className="grid grid-cols-4 items-start text-center w-1/2">
           <span>{formatCurrency(item.unitPriceAtTime)}</span>
           <div>
-            <div className="flex items-center justify-center">
-              <Button
-                size="icon"
-                variant="outline"
-                className="size-8 rounded-r-none !bg-white"
-                onClick={() => handleChangeQuantity(localQuantity - 1)}
-              >
-                <Minus className="w-3 h-3" />
-              </Button>
-              <Input
-                min={1}
-                max={item.product_stock}
-                value={localQuantity}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value, 10);
-                  if (!isNaN(value)) {
-                    handleChangeQuantity(value);
-                  }
-                }}
-                className="w-10 h-8 text-center px-0 text-sm font-semibold rounded-none border-l-0 border-r-0"
-              />
-              <Button
-                size="icon"
-                variant="outline"
-                className="size-8 rounded-l-none !bg-white"
-                onClick={() => handleChangeQuantity(localQuantity + 1)}
-              >
-                <Plus className="w-3 h-3" />
-              </Button>
-            </div>
-            {item.product_stock <= 5 && (
+            {isOutOfStock ? (
+              <p className="text-sm text-gray-400 italic">Không thể chọn</p>
+            ) : (
+              <div className="flex items-center justify-center">
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="size-8 rounded-r-none !bg-white"
+                  onClick={() => handleChangeQuantity(localQuantity - 1)}
+                >
+                  <Minus className="w-3 h-3" />
+                </Button>
+                <Input
+                  min={1}
+                  max={item.product_stock}
+                  value={localQuantity}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value, 10);
+                    if (!isNaN(value)) {
+                      handleChangeQuantity(value);
+                    }
+                  }}
+                  className="w-10 h-8 text-center px-0 text-sm font-semibold rounded-none border-l-0 border-r-0"
+                />
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="size-8 rounded-l-none !bg-white"
+                  onClick={() => handleChangeQuantity(localQuantity + 1)}
+                >
+                  <Plus className="w-3 h-3" />
+                </Button>
+              </div>
+            )}
+            {!isOutOfStock && item.product_stock <= 5 && (
               <span className="text-xs text-orange-400">
                 Còn {item.product_stock} sản phẩm
               </span>
@@ -200,3 +218,4 @@ export default function CartItem({
     </>
   );
 }
+

@@ -2,16 +2,18 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import OrderPaidListener, { OrderPaidEvent } from './OrderPaidListener.';
+import { toast } from 'sonner';
 
 export const CheckoutPayment = () => {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const amount = query.get('amount') || "0";
-  const orderId = query.get('orderId') || "unknown";
+  const orderNumber = query.get('orderNumber') || "unknown";
 
-  const [timeLeft, setTimeLeft] = useState({ minutes: 9, seconds: 48 });
-  const qrCodeImage = `https://qr.sepay.vn/img?acc=VQRQADJJN1426&bank=MBBank&amount=${amount}&des=${orderId}`;
+  const [timeLeft, setTimeLeft] = useState({ minutes: 9, seconds: 59 });
+  const qrCodeImage = `https://qr.sepay.vn/img?acc=VQRQADJJN1426&bank=MBBank&amount=${amount}&des=${orderNumber}`;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -23,7 +25,11 @@ export const CheckoutPayment = () => {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
-
+  const navigate = useNavigate();
+ const handlePaid = (event: OrderPaidEvent) => {
+    toast.success(`Đơn hàng ${event.order_number} đã được thanh toán!`);
+    navigate('/')
+  };
   return (
     <div className="min-h-screen p-4">
       <div className="max-w-6xl mx-auto">
@@ -35,12 +41,12 @@ export const CheckoutPayment = () => {
 
               <div className="space-y-2">
                 <div className="text-sm text-gray-500">Mã đơn hàng</div>
-                <div className="font-mono text-lg font-semibold">{orderId}</div>
+                <div className="font-mono text-lg font-semibold">{orderNumber}</div>
               </div>
 
               <div className="space-y-2">
                 <div className="text-sm text-gray-500">Mô tả</div>
-                <div className="text-gray-800">Thanh toán hóa đơn {orderId}</div>
+                <div className="text-gray-800">Thanh toán hóa đơn {orderNumber}</div>
               </div>
 
               <div className="space-y-2">
@@ -123,6 +129,7 @@ export const CheckoutPayment = () => {
           </Card>
         </div>
       </div>
+      <OrderPaidListener orderNumber={orderNumber} onPaid={handlePaid} />
     </div>
   );
 };
