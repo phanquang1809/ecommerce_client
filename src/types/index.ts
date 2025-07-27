@@ -95,6 +95,7 @@ export type Shop = {
   slug: string;
   address: string;
   phone: string;
+  user?: User;
   description?: string;
   logo?: string;
   banner?: string;

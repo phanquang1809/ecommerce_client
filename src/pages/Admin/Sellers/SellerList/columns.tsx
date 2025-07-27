@@ -110,17 +110,17 @@ export const columns = (): ColumnDef<Shop>[] => [
     cell: ({ row }) => (
       <div className="flex items-start gap-2">
         <Avatar className="bg-accent size-10">
-          <AvatarImage src={row.original.user.avatar} alt="@shadcn" />
+          <AvatarImage src={row.original.user?.avatar} alt="@shadcn" />
           <AvatarFallback className="text-xs text-muted-foreground">
             Walmart
           </AvatarFallback>
         </Avatar>
         <div>
           <div className="font-medium text-primary dark:text-white">
-            {row.original.user.full_name}
+            {row.original.user?.full_name}
           </div>
           <div className="text-gray-400 dark:text-gray-500">
-            {row.original.user.email}
+            {row.original.user?.email}
           </div>
         </div>
       </div>
