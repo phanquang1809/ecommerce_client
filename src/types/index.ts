@@ -42,24 +42,34 @@ export type CategorySubGroup = {
   description?: string;
   parent: { id: number; name: string };
 };
-export type User = {
+export type Address = {
   id: number;
-  email: string;
-  user_name: string;
-  full_name: string;
-  avatar: string;
-  phone: string;
-  role: "admin" | "user" | "shop" | null;
+  address: string;
+  province: string;
+  district: string;
+  ward: string;
+  customer_name: string;
+  customer_phone_number: string;
+  is_default: boolean;
+}
+export type SocialAccount = {
+  id: number;
+  provider: "google" | "facebook" | "github" | string; // tùy provider nào bạn hỗ trợ
+};
+export type User = {
+  id?: number;
+  email?: string;
+  user_name?: string;
+  full_name?: string;
+  avatar?: string;
+  phone?: string;
+  has_changed_user_name?: boolean;
+  role?: "admin" | "user" | "shop";
   shop?: Shop;
-  default_address: {
-    id: number;
-    address: string;
-    province: string;
-    district: string;
-    ward: string;
-    customer_name: string;
-    customer_phone_number: string;
-  };
+  address?: Address;
+  gender?: "male" | "female" | "other" | undefined;
+  date_of_birth?: Date | undefined;
+  social_accounts?: SocialAccount[];
 };
 export type AuthResponse = {
   user: User;
@@ -81,13 +91,13 @@ export type Customer = {
 export type Shop = {
   id: number;
   name: string;
+  user_id: number;
   slug: string;
   address: string;
   phone: string;
   description?: string;
   logo?: string;
   banner?: string;
-  user: User;
   status: "pending" | "active" | "banned";
   rating: number;
   is_active: boolean;

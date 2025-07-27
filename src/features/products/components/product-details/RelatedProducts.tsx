@@ -58,7 +58,7 @@ export default function RelatedProducts({ relatedProducts = [] }: RelatedProduct
       >
         {relatedProducts.map((product) => (
           <SwiperSlide key={product.id} className="w-full mb-2">
-              <ProductCard product={product} type="related" />
+              <ProductCard product={product} hasBorder hiddenOptions />
           </SwiperSlide>
         ))}
       </Swiper>

@@ -9,7 +9,7 @@ export default function CheckoutShopGroup({
   items,
   shippingFee
 }: {
-  shop: { id: number; name: string; url: string } | undefined;
+  shop: { id: number; name: string; slug: string } | undefined;
   items: CartItem[];
   shippingFee:number;
 }) {

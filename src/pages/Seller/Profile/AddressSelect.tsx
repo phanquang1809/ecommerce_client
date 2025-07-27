@@ -21,11 +21,13 @@ type Address = {
 };
 
 export default function AddressSelect({
+  title,
   open,
   onOpenChange,
   onConfirm,
   address,
 }: {
+  title: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: (selected: {
@@ -141,7 +143,7 @@ export default function AddressSelect({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="!max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Chọn địa chỉ lấy hàng</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="">
@@ -241,24 +243,15 @@ export default function AddressSelect({
               className="!ring-0"
             />
           </div>
-          {/* <div className="text-md">
-            <div className="flex items-center">
-              Đã chọn: {province?.label}
-              {province?.label && district ? " > " : ""}
-              {district?.label}
-              {district?.label && ward ? " > " : ""}
-              {ward?.label}
-              {ward && addressDetail ? " > " : ""}
-              {ward && addressDetail}
-            </div>
-          </div> */}
         </div>
         <div className="flex justify-end mt-4 gap-2">
           <DialogClose asChild>
-            <Button variant="ghost">Hủy</Button>
+            <Button className="rounded" size="sm" variant="ghost">Hủy</Button>
           </DialogClose>
           <DialogClose asChild>
             <Button
+            className="rounded"
+            size="sm"
               disabled={!isFormValid}
               onClick={() =>
                 onConfirm({

@@ -8,6 +8,7 @@ import {
   changePassword,
   verifyEmail,
   createUser,
+  loginWithSocialAccount,
 } from "../../services/authServices";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/theme-provider";
@@ -18,12 +19,12 @@ import CreateAccount from "./Auth/CreateAccount";
 import { SendEmailResetPassword } from "./Auth/SendEmailResetPassword";
 import { SendOtpRegister } from "./Auth/SendOtpRegister";
 export default function Login() {
-   const { setTheme } = useTheme();
-  
-    useEffect(() => {
-      setTheme("light");
-    }, [setTheme]);
-  
+  const { setTheme } = useTheme();
+
+  useEffect(() => {
+    setTheme("light");
+  }, [setTheme]);
+
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated, user } = useUserStore();
@@ -50,21 +51,22 @@ export default function Login() {
     confirmPassword: "",
   });
   const [phoneNumber, setPhoneNumber] = useState("");
-const [phoneError, setPhoneError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
 
-const [address, setAddress] = useState({
-  province: { label: "", value: "" },
-  district: { label: "", value: "" },
-  ward: { label: "", value: "" },
-  addressDetail: "",
-});
+  const [address, setAddress] = useState({
+    province: { label: "", value: "" },
+    district: { label: "", value: "" },
+    ward: { label: "", value: "" },
+    addressDetail: "",
+  });
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const emailParam = searchParams.get("email");
     const tokenParam = searchParams.get("token");
-    
-    const path = location.pathname.split("/")[location.pathname.split("/").length - 1];
-    
+
+    const path =
+      location.pathname.split("/")[location.pathname.split("/").length - 1];
+
     if (path.startsWith("create") && emailParam && tokenParam) {
       setEmail(emailParam);
       setToken(tokenParam);
@@ -81,7 +83,7 @@ const [address, setAddress] = useState({
   }, [location]);
 
   const handleSendVerificationCode = async () => {
-    toast.promise(sendVerificationCode(email,false), {
+    toast.promise(sendVerificationCode(email, false), {
       loading: <span className="text-xs">Đang gửi email đến {email}...</span>,
       success: (
         <span className="text-xs">Vui lòng kiểm tra email của bạn 📩</span>
@@ -96,13 +98,15 @@ const [address, setAddress] = useState({
       return;
     }
     setIsLoading(true);
-    const result = await verifyEmail(email, code,false);
+    const result = await verifyEmail(email, code, false);
     setIsLoading(false);
     if (result.status === "success") {
       toast.success(result.message);
       setToken(result.token);
       setStep("createAccount");
-      navigate("/customer/account/create?token=" + result.token+"&email=" + email);
+      navigate(
+        "/customer/account/create?token=" + result.token + "&email=" + email
+      );
     } else {
       toast.error(result.message);
     }
@@ -165,71 +169,71 @@ const [address, setAddress] = useState({
   };
   const { setUser, setInitialized } = useUserStore();
   const handleCreacteAccount = async () => {
-  const newErrors = { ...error };
+    const newErrors = { ...error };
 
-  if (!password.trim()) {
-    newErrors.password = "Mật khẩu không được để trống";
-  } else if (password.length < 6) {
-    newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
-  }
-  if (!confirmPassword.trim()) {
-    newErrors.confirmPassword = "Xác nhận mật khẩu không được để trống";
-  } else if (confirmPassword !== password) {
-    newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
-  }
-
-  if (!phoneNumber.trim()) {
-    setPhoneError("Vui lòng nhập số điện thoại");
-  } else if (!/^0\d{9}$/.test(phoneNumber)) {
-    setPhoneError("Số điện thoại không hợp lệ");
-  } else {
-    setPhoneError("");
-  }
-
-  const isAddressValid =
-    address.province.value &&
-    address.district.value &&
-    address.ward.value &&
-    address.addressDetail;
-
-  if (!isAddressValid) {
-    toast.error("Vui lòng chọn đầy đủ địa chỉ");
-    return;
-  }
-
-  setError(newErrors);
-
-  if (
-    !newErrors.password &&
-    !newErrors.confirmPassword &&
-    !phoneError &&
-    isAddressValid
-  ) {
-    setIsLoading(true);
-
-    // Gọi API createUser (bạn nên sửa `createUser` để nhận thêm phone + address nếu chưa có)
-    const result = await createUser(
-      email,
-      password,
-      confirmPassword,
-      token,
-      phoneNumber,
-      address // Truyền thêm nếu backend chấp nhận
-    );
-
-    setIsLoading(false);
-    if (result.status === "success") {
-      setPassword("");
-      setConfirmPassword("");
-      setEmail("");
-      navigate("/");
-      setUser(result.user);
-      setInitialized(true);
-    } else {
-      toast.error(result.message);
+    if (!password.trim()) {
+      newErrors.password = "Mật khẩu không được để trống";
+    } else if (password.length < 6) {
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
     }
-  }
-};
+    if (!confirmPassword.trim()) {
+      newErrors.confirmPassword = "Xác nhận mật khẩu không được để trống";
+    } else if (confirmPassword !== password) {
+      newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+    }
+
+    if (!phoneNumber.trim()) {
+      setPhoneError("Vui lòng nhập số điện thoại");
+    } else if (!/^0\d{9}$/.test(phoneNumber)) {
+      setPhoneError("Số điện thoại không hợp lệ");
+    } else {
+      setPhoneError("");
+    }
+
+    const isAddressValid =
+      address.province.value &&
+      address.district.value &&
+      address.ward.value &&
+      address.addressDetail;
+
+    if (!isAddressValid) {
+      toast.error("Vui lòng chọn đầy đủ địa chỉ");
+      return;
+    }
+
+    setError(newErrors);
+
+    if (
+      !newErrors.password &&
+      !newErrors.confirmPassword &&
+      !phoneError &&
+      isAddressValid
+    ) {
+      setIsLoading(true);
+
+      // Gọi API createUser (bạn nên sửa `createUser` để nhận thêm phone + address nếu chưa có)
+      const result = await createUser(
+        email,
+        password,
+        confirmPassword,
+        token,
+        phoneNumber,
+        address // Truyền thêm nếu backend chấp nhận
+      );
+
+      setIsLoading(false);
+      if (result.status === "success") {
+        setPassword("");
+        setConfirmPassword("");
+        setEmail("");
+        navigate("/");
+        setUser(result.user);
+        setInitialized(true);
+      } else {
+        toast.error(result.message);
+      }
+    }
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -251,6 +255,10 @@ const [address, setAddress] = useState({
         console.warn("Dữ liệu không hợp lệ:", step);
     }
   };
+  const handleSocialLogin = async (provider: string) => {
+    const url=await loginWithSocialAccount(provider);
+    window.location.href=url.url
+  }
   if (isAuthenticated && user?.role === "user") {
     return <Navigate to="/" replace />;
   }
@@ -299,23 +307,23 @@ const [address, setAddress] = useState({
                 isLoading={isLoading}
               />
             )}
-           {step === "createAccount" && (
-  <CreateAccount
-    password={password}
-    setPassword={setPassword}
-    confirmPassword={confirmPassword}
-    setConfirmPassword={setConfirmPassword}
-    error={error}
-    setError={setError}
-    isLoading={isLoading}
-    phoneNumber={phoneNumber}
-    setPhoneNumber={setPhoneNumber}
-    phoneError={phoneError}
-    setPhoneError={setPhoneError}
-    address={address}
-    setAddress={setAddress}
-  />
-)}
+            {step === "createAccount" && (
+              <CreateAccount
+                password={password}
+                setPassword={setPassword}
+                confirmPassword={confirmPassword}
+                setConfirmPassword={setConfirmPassword}
+                error={error}
+                setError={setError}
+                isLoading={isLoading}
+                phoneNumber={phoneNumber}
+                setPhoneNumber={setPhoneNumber}
+                phoneError={phoneError}
+                setPhoneError={setPhoneError}
+                address={address}
+                setAddress={setAddress}
+              />
+            )}
 
             {message && <p className="text-red-600 text-sm">{message}</p>}
             <Button
@@ -372,7 +380,7 @@ const [address, setAddress] = useState({
                     type="button"
                     disabled={isLoading}
                     className="w-full py-3 flex items-center justify-center space-x-3"
-                    onClick={() => console.log("Google login clicked")}
+                    onClick={() => handleSocialLogin("google")}
                   >
                     <svg
                       fill="none"

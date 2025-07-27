@@ -100,9 +100,9 @@ export const columns = (
               alt={row.original.buyer.user_name}
               className="w-10 h-10 rounded-md object-cover"
             /> */}
-             <Avatar className="rounded size-10 ">
+             <Avatar className="size-12 border">
             <AvatarImage src={row.original.buyer.avatar} alt={row.original.buyer.user_name} />
-            <AvatarFallback className="rounded bg-primary">
+            <AvatarFallback className="bg-primary">
               <User2 className="size-5 text-white" />
             </AvatarFallback>
           </Avatar>
@@ -122,7 +122,7 @@ export const columns = (
             <img
               src={item.image}
               alt={item.product_name}
-              className="w-14 h-14 rounded-md object-cover"
+              className="w-14 h-14 rounded-md object-cover border"
               onError={(e) => {
                   e.currentTarget.src = "/image/spark-icon.svg";
                 }}

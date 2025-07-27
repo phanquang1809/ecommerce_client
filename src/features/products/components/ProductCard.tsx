@@ -10,10 +10,11 @@ import { useQueryClient } from "@tanstack/react-query";
 
 interface ProductCardProps {
   product: Product;
-  type?: "related" | "category";
+  hasBorder?: boolean;
+  hiddenOptions?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, type="category" }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, hasBorder=false,hiddenOptions=false }) => {
   const navigate = useNavigate();
 const queryClient = useQueryClient();
 
@@ -56,7 +57,7 @@ const queryClient = useQueryClient();
     <Link
       to={`/products/${product.shop_slug}/${product.slug}`}
       onClick={handleLinkClick}
-      className={cn("flex flex-col  rounded-md overflow-hidden group cursor-pointer no-underline text-inherit bg-white", type === "related" && "border")}
+      className={cn("flex flex-col h-full rounded-md overflow-hidden group cursor-pointer no-underline text-inherit bg-white",hasBorder && "border")}
     >
       <div className="relative aspect-square mb-4 overflow-hidden rounded-t-md">
         {/* Container for scaling both images */}
@@ -100,7 +101,7 @@ const queryClient = useQueryClient();
           </span>
           <span className="text-xs">Đã bán {product.total_sold}</span>
         </div>
-        {type === "category" && (
+        {!hiddenOptions && (
            product.options && product.options.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-1">
             {product.options.map((option) => (

@@ -61,7 +61,7 @@
     "pusher-js": "^8.4.0",
     "react": "^19.1.0",
     "react-cookie": "^8.0.1",
-    "react-day-picker": "^9.6.5",
+    "react-day-picker": "^9.8.0",
     "react-dom": "^19.1.0",
     "react-dropzone": "^14.3.8",
     "react-hot-toast": "^2.5.2",

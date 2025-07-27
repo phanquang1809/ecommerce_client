@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader, MessageCircleMore, Store } from "lucide-react";
+import { ArrowLeft, MessageCircleMore, Store } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useOrderDetail } from "@/services/website/orderServices";
 import { formatCurrency, formatDate } from "@/utils/format";
@@ -11,8 +11,8 @@ export const OrderDetails = () => {
   const { data, isLoading, isError } = useOrderDetail(number || "");
     if (isLoading) {
       return (
-        <div className="flex justify-center items-center h-screen">
-          <Loader className="animate-spin" />
+        <div className="">
+          Đang tải...
         </div>
       );
     }
@@ -29,7 +29,7 @@ export const OrderDetails = () => {
           className="text-xl font-normal !bg-white"
           onClick={() => window.history.back()}
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="w-4 h-4" />
           Trở lại
         </Button>
         <div className="flex items-center gap-1">

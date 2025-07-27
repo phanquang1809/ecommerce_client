@@ -8,7 +8,7 @@ export async function getCart(): Promise<{
   shop_info:{
     id:number,
     name:string,
-    url:string
+    slug:string
   }[]
 }> {
   const res = await authApi.get("/cart");

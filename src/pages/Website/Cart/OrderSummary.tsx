@@ -1,18 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/types";
-import { ChevronDown, Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "@/utils/format";
 
 type Shop = {
   id: number;
   name: string;
-  // có thể bổ sung province, district nếu cần tính phí vận chuyển
 };
 
 export default function OrderSummary({
   items,
-  shopInfo,
   onCheckout,
   shippingFees, // ✅ thêm prop
 
@@ -22,15 +19,6 @@ export default function OrderSummary({
   onCheckout: () => void;
   shippingFees: Record<number, number>;
 }) {
-  // Nhóm sản phẩm theo shop
-  const grouped = items.reduce((acc, item) => {
-    if (!acc[item.shopId]) acc[item.shopId] = [];
-    acc[item.shopId].push(item);
-    return acc;
-  }, {} as Record<number, CartItem[]>);
-
-  const fakeDiscount = 100000;
-
   const totalPrice = items.reduce(
     (sum, item) => sum + item.unitPriceAtTime * item.quantity,
     0
@@ -38,7 +26,7 @@ export default function OrderSummary({
 
 const totalShippingFee = Object.values(shippingFees).reduce((sum, fee) => sum + fee, 0);
 
-const totalPayment = totalPrice + totalShippingFee - fakeDiscount;
+const totalPayment = totalPrice + totalShippingFee;
 
   return (
     <div className="bg-white rounded p-4 text-sm space-y-3">
@@ -51,14 +39,13 @@ const totalPayment = totalPrice + totalShippingFee - fakeDiscount;
         </div>
         <div className="flex items-center gap-1">
           <span>{items.length} sản phẩm.</span>
-          <div className="flex items-center gap-1 text-blue-500 cursor-pointer">
+          {/* <div className="flex items-center gap-1 text-blue-500 cursor-pointer">
             <span>Xem thông tin</span>
             <ChevronDown className="size-4" />
-          </div>
+          </div> */}
         </div>
       </div>
-
-      Chi tiết từng shop
+      {/* Chi tiết từng shop
           {Object.entries(grouped).map(([shopId, shopItems]) => {
         const shop = shopInfo.find((s) => s.id === Number(shopId));
         const subtotal = shopItems.reduce(
@@ -90,9 +77,30 @@ const totalPayment = totalPrice + totalShippingFee - fakeDiscount;
             </div>
           </div>
         );
-      })}
+      })} */}
 
+    
       <div className="flex justify-between items-center pt-2">
+        <span className=" line-clamp-2 max-w-[120px]">
+          Tổng cộng
+        </span>
+        <div className="flex flex-col items-end">
+          <span className=" text-lg">
+            {formatCurrency(totalPrice)}
+          </span>
+        </div>
+      </div>
+        <div className="flex justify-between items-center pt-2">
+        <span className=" line-clamp-2 max-w-[120px]">
+          Tổng phí vận chuyển
+        </span>
+        <div className="flex flex-col items-end">
+          <span className=" text-lg">
+            {formatCurrency(totalShippingFee)}
+          </span>
+        </div>
+      </div>
+        <div className="flex justify-between items-center pt-2">
         <span className="font-bold line-clamp-2 max-w-[120px]">
           Tổng tiền thanh toán
         </span>
@@ -100,12 +108,9 @@ const totalPayment = totalPrice + totalShippingFee - fakeDiscount;
           <span className="font-bold text-red-500 text-lg">
             {formatCurrency(totalPayment)}
           </span>
-          <span className="text-sm text-green-500">
-            Tiết kiệm: {formatCurrency(fakeDiscount)}
-          </span>
         </div>
       </div>
-
+   
       <p className="text-xs text-gray-500">
         (Giá đã bao gồm thuế GTGT, phí đóng gói, vận chuyển...)
       </p>

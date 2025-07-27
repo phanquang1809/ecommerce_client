@@ -27,3 +27,12 @@ export const formatDay = (value: string | Date) =>
     month: "2-digit",
     year: "numeric",
   });
+
+export const normalizeString = (str: string) => {
+  return str
+    .normalize("NFD") // tách dấu
+    .replace(/[\u0300-\u036f]/g, "") // xóa dấu
+    .replace(/\s+/g, " ") // loại bỏ khoảng trắng thừa
+    .trim()
+    .toLowerCase();
+};

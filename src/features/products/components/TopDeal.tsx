@@ -4,12 +4,15 @@ import ProductSlider from "./ProductSlider";
 
 type ProductListProps = {
   products: Product[];
-   isLoading: boolean;
+  isLoading: boolean;
   error: Error | null;
 };
 
-export default function TopDeal({ products, isLoading, error }: ProductListProps) {
-
+export default function TopDeal({
+  products,
+  isLoading,
+  error,
+}: ProductListProps) {
   if (error) {
     return <div className="text-red-500">Lỗi khi tải sản phẩm.</div>;
   }
@@ -18,15 +21,15 @@ export default function TopDeal({ products, isLoading, error }: ProductListProps
       <h2 className="text-2xl font-medium tracking-tight text-rose-500 mb-2">
         Top Deal - Siêu Rẻ
       </h2>
-     {isLoading ? (
-      <div className="flex gap-6">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <ProductCardSkeleton key={index} />
-        ))}
-      </div>
-) : (
-  <ProductSlider products={products} />
-)}
+      {isLoading ? (
+        <div className="flex gap-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <ProductCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : (
+        <ProductSlider products={products} hasBorder />
+      )}
     </div>
   );
 }

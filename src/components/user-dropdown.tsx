@@ -28,9 +28,9 @@ export function UserDropdown({ user,role="user" }: { user: User | null,role?:str
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className={cn("flex items-center gap-2 rounded-md cursor-pointer",role!=="admin"&&"hover:bg-blue-500  p-2")}>
-          <Avatar className={cn("rounded",role==="admin"?"size-9":"size-6")}>
+          <Avatar className={cn("bg-gray-50",role==="admin"?"size-9":"size-6")}>
             <AvatarImage src={user?.avatar} alt={user?.full_name} />
-            <AvatarFallback className={cn("rounded",role==="admin"?"bg-primary":"text-sm bg-blue-900 text-white rounded")}>
+            <AvatarFallback className={cn("",role==="admin"?"bg-primary":"text-sm bg-blue-900 text-white ")}>
               <User2 className="size-4 text-white" />
             </AvatarFallback>
           </Avatar>
@@ -47,7 +47,7 @@ export function UserDropdown({ user,role="user" }: { user: User | null,role?:str
       >
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-            <Avatar className="h-8 w-8 rounded-lg">
+            <Avatar className="h-8 w-8 border">
               <AvatarImage src={user?.avatar} alt={user?.full_name} />
               <AvatarFallback className="rounded-lg">AD</AvatarFallback>
             </Avatar>

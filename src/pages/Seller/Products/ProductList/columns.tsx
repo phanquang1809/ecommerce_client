@@ -60,7 +60,7 @@ export const columns = (
             className="flex space-x-2 items-start cursor-pointer"
             onClick={() => onEdit(row.original)}
           >
-            <Avatar className="bg-accent size-20 !rounded-md">
+            <Avatar className="border size-20 !rounded-md">
               <AvatarImage
                 src={row.original.images[0]}
                 alt="@shadcn"

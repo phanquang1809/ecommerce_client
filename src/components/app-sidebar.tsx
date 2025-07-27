@@ -11,6 +11,7 @@ import {
   ChartSpline,
   Images,
   Gift,
+  Brush,
 } from "lucide-react";
 import { NavMain } from "@/components/nav-main";
 // import { NavUser } from "@/components/nav-user";
@@ -177,7 +178,7 @@ const sellerSidebarData = {
     },
     {
       id: "product-management",
-      title: "Quản lý sản phẩm",
+      title: "",
       items: [
         {
           title: "Sản phẩm",
@@ -221,6 +222,27 @@ const sellerSidebarData = {
         },
       ],
     },
+    {
+      id: "shop-decoration",
+      title: "",
+      items: [
+        {
+          title: "Trang trí cửa hàng",
+          url: "",
+          icon: Brush,
+          items: [
+        {
+          title: "Danh mục cửa hàng",
+          url: "/seller/categories",
+        },
+        {
+          title: "Banner cửa hàng",
+          url: "/seller/banners",
+        },
+      ],
+        },
+      ],
+    },
   ],
 };
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -234,10 +256,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <div className="flex items-center gap-2">
-          <img src={user?.role === "shop" ? user?.shop?.logo : logoThumb} alt="logo" className="size-12 rounded object-contain" />
+        <div className="flex items-start gap-2">
+          <img src={user?.role === "shop" ? user?.shop?.logo : logoThumb} alt="logo" className="border rounded-md size-12 rounded object-contain" />
           {state === "expanded" && (
-            <span className="text-2xl text-blue-600 font-bold">{user?.role === "shop" ? user?.shop?.name : "Walmart" }</span>
+            <span className="text-2xl text-primary font-bold">{user?.role === "shop" ? user?.shop?.name : "Walmart" }</span>
           )}
         </div>
       </SidebarHeader>

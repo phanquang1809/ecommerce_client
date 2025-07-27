@@ -1,16 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  MessagesSquare,
-  Send,
-  SquareChevronDown,
-  UserRound,
-} from "lucide-react";
+import { MessagesSquare, SquareChevronDown, UserRound } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
+  Conversation,
   Message,
   sendMessage,
   useConversations,
@@ -20,127 +15,181 @@ import useUserStore from "@/store/userStore";
 import echo from "@/lib/echo"; // nhớ import echo
 import { useQueryClient } from "@tanstack/react-query";
 import { AvatarImage } from "@radix-ui/react-avatar";
-import {  formatDay, formatTime } from "@/utils/format";
+import { formatCurrency, formatDay, formatTime } from "@/utils/format";
+import { ChatInput } from "./ChatInput";
+import { Link } from "react-router-dom";
+import useChatStore from "@/store/chatStore";
 export const Chat = () => {
   const { user } = useUserStore();
-  const [open, setOpen] = useState(false);
-  const [onlineMap, setOnlineMap] = useState<Record<number, number[]>>({});
-  const [messageInput, setMessageInput] = useState("");
+ const { open, setOpen, selectedConversationId, setSelectedConversationId } = useChatStore();
 
-  const { data: conversations = [], isLoading } = useConversations();
+  const { data: conversations = [], isLoading } = useConversations(user);
+  const queryClient = useQueryClient();
+  const unReadMessages = conversations.filter(
+    (c) => c.last_message &&!c.last_message?.read_at && c.last_message?.sender_id !== user?.id
+  ).length;
 
-  const [selectedConversationId, setSelectedConversationId] = useState<
-    number | null
-  >(null);
-  const { data: messages = [] } = useMessages(selectedConversationId);
+ 
+  const { data: conversation } = useMessages(selectedConversationId);
 
-  useEffect(() => {
-    if (!user || conversations.length === 0) return;
-
-    const joinedChannels: string[] = [];
-
-    conversations.forEach((conversation) => {
-      const channelName = `chat.presence.${conversation.id}`;
-      const channel = echo.join(channelName);
-      joinedChannels.push(channelName);
-
-      channel.here((users: any[]) => {
-        setOnlineMap((prev) => ({
-          ...prev,
-          [conversation.id]: users.map((u) => parseInt(u.id)), // ép kiểu chắc chắn
-        }));
-      });
-
-      channel.joining((user: any) => {
-        setOnlineMap((prev) => {
-          const current = prev[conversation.id] || [];
-          if (current.includes(user.id)) return prev; // tránh trùng
-          return {
-            ...prev,
-            [conversation.id]: [...current, user.id],
-          };
-        });
-      });
-
-      channel.leaving((user: any) => {
-        setOnlineMap((prev) => {
-          const current = prev[conversation.id] || [];
-          return {
-            ...prev,
-            [conversation.id]: current.filter((id) => id !== user.id),
-          };
-        });
-      });
-    });
-
-    return () => {
-      joinedChannels.forEach((channelName) => {
-        echo.leave(channelName);
-      });
-    };
-  }, [user, conversations]);
-
-  useEffect(() => {
-    console.log("🔵 Online users map:", onlineMap);
-  }, [onlineMap]);
   const selectedConversation = conversations.find(
     (c) => c.id === selectedConversationId
   );
+  const onNewMessage = useCallback(
+    (e: { message: Message; conversation_id: number }) => {
+      const isCurrentChat = selectedConversationId === e.conversation_id;
+      const isFromOther = e.message.sender_id !== user?.id;
 
-  const queryClient = useQueryClient();
+      queryClient.setQueryData<Conversation>(
+        ["messages", e.conversation_id],
+        (old) => {
+          if (!old) return old;
+          const existed = old.messages?.some((m) => m.id === e.message.id);
+          if (existed) return old;
+
+          return {
+            ...old,
+            messages: [...(old.messages || []), e.message],
+            last_message: {
+              ...e.message,
+              read_at: isFromOther ? new Date().toISOString() : null,
+            },
+          };
+        }
+      );
+
+      queryClient.setQueryData<Conversation[]>(
+        ["conversations"],
+        (oldConvs) => {
+          if (!oldConvs) return oldConvs;
+          return oldConvs.map((conv) => {
+            if (conv.id !== e.conversation_id) return conv;
+            return {
+              ...conv,
+              last_message: {
+                ...e.message,
+                read_at:
+                  isCurrentChat && isFromOther
+                    ? new Date().toISOString()
+                    : null,
+              },
+            };
+          });
+        }
+      );
+
+      // Nếu đang mở đúng cuộc trò chuyện, cuộn xuống cuối
+      if (isCurrentChat) scrollToBottom();
+    },
+    [queryClient, selectedConversationId, user]
+  );
+
+  const sortedConversations = [...conversations].sort((a, b) => {
+    const aTime = a.last_message?.created_at
+      ? new Date(a.last_message.created_at).getTime()
+      : 0;
+    const bTime = b.last_message?.created_at
+      ? new Date(b.last_message.created_at).getTime()
+      : 0;
+
+    return bTime - aTime;
+  });
+
   useEffect(() => {
     if (!user) return;
 
     const channel = echo.private(`user.${user.id}`);
-
-    channel.listen(".MessageSent", () => {
-      console.log("📨 Tin nhắn mới:");
-      queryClient.invalidateQueries({ queryKey: ["conversations"] });
-    });
-
+    channel.listen(".MessageSent", onNewMessage);
     return () => {
       echo.leave(`user.${user.id}`);
     };
-  }, [user]);
+  }, [user, onNewMessage]);
+
   useEffect(() => {
     if (!user || !selectedConversationId) return;
 
     const channel = echo.private(`chat.${selectedConversationId}`);
-
-    channel.listen(".MessageSent", () => {
-      queryClient.invalidateQueries({
-        queryKey: ["messages", selectedConversationId],
-      });
-      queryClient.invalidateQueries({ queryKey: ["conversations"] });
-    });
+    channel.listen(".MessageSent", onNewMessage);
 
     return () => {
       echo.leave(`chat.${selectedConversationId}`);
     };
-  }, [user, selectedConversationId]);
+  }, [user, onNewMessage, selectedConversationId]);
+
+  const [globalOnlineIds, setGlobalOnlineIds] = useState<number[]>([]);
+  console.log(conversations);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const platformChannel = echo.join("chat.presence.platform");
+
+    platformChannel.here((users: { id: number; name: string }[]) => {
+      const onlineIds = users.map((u: { id: number; name: string }) => u.id);
+      setGlobalOnlineIds(onlineIds); // lưu vào state
+    });
+
+    platformChannel.joining((joinedUser: { id: number; name: string }) => {
+      setGlobalOnlineIds((prev) =>
+        prev.includes(joinedUser.id) ? prev : [...prev, joinedUser.id]
+      );
+    });
+
+    platformChannel.leaving((leftUser: { id: number; name: string }) => {
+      setGlobalOnlineIds((prev) => prev.filter((id) => id !== leftUser.id));
+    });
+
+    return () => {
+      echo.leave("chat.presence.platform");
+    };
+  }, [user]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView();
   };
-  const handleSendMessage = async () => {
-    if (!messageInput.trim() || !selectedConversationId) return;
-    try {
-      await sendMessage({
-        conversation_id: selectedConversationId,
-        content: messageInput.trim(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["messages", selectedConversationId],
-      });
-      setMessageInput("");
-      scrollToBottom();
-    } catch (err) {
-      console.error("Lỗi gửi tin nhắn", err);
-    }
-  };
+  const handleSendMessage = useCallback(
+    async (text: string) => {
+      if (!text.trim() || !selectedConversationId) return;
+      try {
+        await sendMessage({
+          conversation_id: selectedConversationId,
+          content: text.trim(),
+        });
+        scrollToBottom();
+      } catch (err) {
+        console.error("Lỗi gửi tin nhắn", err);
+      }
+    },
+    [selectedConversationId]
+  );
+
   useEffect(() => {
+    if (!conversation || !conversation.id) return;
+
     scrollToBottom();
-  }, [messages]);
+
+    queryClient.setQueryData<Conversation[] | undefined>(
+      ["conversations"],
+      (oldConvs) => {
+        if (!oldConvs) return oldConvs;
+
+        return oldConvs.map((conv) => {
+          if (conv.id !== conversation.id) return conv;
+
+          return {
+            ...conv,
+            last_message: conversation.last_message ?? conv.last_message,
+            messages: conv.messages, // hoặc giữ nguyên
+            user1: conv.user1,
+            user2: conv.user2,
+            id: conv.id,
+          };
+        });
+      }
+    );
+  }, [conversation, queryClient]);
+
   const groupMessagesByDate = (
     messages: Message[]
   ): Record<string, Message[]> => {
@@ -155,6 +204,9 @@ export const Chat = () => {
       return acc;
     }, {} as Record<string, Message[]>);
   };
+const handleClose = () => {
+  setOpen(false);
+};
   if (isLoading) return null;
   return (
     <>
@@ -165,7 +217,7 @@ export const Chat = () => {
           onClick={() => setOpen(true)}
         >
           <MessagesSquare className="size-6 mr-1" />
-          Chat
+          Chat{unReadMessages > 0 && "(" + unReadMessages + ")"}
         </Button>
       )}
 
@@ -173,24 +225,24 @@ export const Chat = () => {
         <div className="fixed bottom-0 right-2 w-[600px] h-[500px] bg-white shadow-2xl border rounded-t flex flex-col z-50 overflow-hidden">
           {/* Header */}
           <div className="flex justify-between items-center px-4 py-2 border-b">
-            <div className="font-semibold text-lg text-blue-600">Tin nhắn</div>
+            <div className="font-semibold text-lg text-blue-600">Chat</div>
             <SquareChevronDown
               className="w-5 h-5 cursor-pointer"
-              onClick={() => setOpen(false)}
+              onClick={handleClose}
             />
           </div>
 
           <div className="flex flex-1 overflow-hidden h-full">
             {/* Danh sách người dùng */}
             <ScrollArea className="w-1/3 border-r h-full">
-              {conversations.map((conversation) => {
+              {sortedConversations.map((conversation) => {
+                console.log("🔵 Conversation:", conversation);
+
                 const partner =
                   conversation.user1.id === user?.id
                     ? conversation.user2
                     : conversation.user1;
-                const isOnline = onlineMap[conversation.id]?.includes(
-                  partner.id
-                );
+                const isOnline = globalOnlineIds.includes(partner.id);
                 return (
                   <div
                     key={conversation.id}
@@ -198,16 +250,16 @@ export const Chat = () => {
                       setSelectedConversationId(conversation.id);
                     }}
                     className={cn(
-                      "px-4 py-2 cursor-pointer hover:bg-gray-100",
+                      "p-2 cursor-pointer hover:bg-gray-100",
                       selectedConversationId === conversation.id &&
                         "bg-gray-100"
                     )}
                   >
-                    <div className="flex items-start gap-2">
-                      <Avatar className="w-8 h-8 !rounded">
+                    <div className="flex items-start gap-1">
+                      <Avatar className="w-10 h-10 border">
                         <AvatarImage src={partner?.avatar} />
-                        <AvatarFallback className="bg-blue-600 text-white !rounded">
-                          <UserRound className="h-4 w-4" />
+                        <AvatarFallback className="bg-blue-600 text-white">
+                          <UserRound className="h-6 w-6" />
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col w-full">
@@ -219,7 +271,16 @@ export const Chat = () => {
                             <span className=" text-gray-500">offline</span>
                           )}
                         </div>
-                        <span className="text-xs text-gray-500 line-clamp-1">
+                        <span
+                          className={cn(
+                            "text-xs line-clamp-1",
+                            conversation.last_message&&
+                            !conversation.last_message?.read_at &&
+                              conversation.last_message?.sender_id !== user?.id
+                              ? "font-semibold"
+                              : "text-gray-500"
+                          )}
+                        >
                           {conversation.last_message?.content ??
                             "Chưa có tin nhắn"}
                         </span>
@@ -232,11 +293,14 @@ export const Chat = () => {
 
             {/* Nội dung chat */}
             <div className="w-2/3 flex flex-col justify-between bg-gray-50 h-full">
-              <ScrollArea className="flex-1 px-4 py-3 space-y-3 h-[70%]">
-                {selectedConversation ? (
-                  <div className="space-y-1">
-                    {Object.entries(groupMessagesByDate(messages)).map(
-                      ([dateLabel, msgs]) => (
+              {selectedConversation ? (
+                // ✅ Khi có đoạn chat => hiển thị ScrollArea và tin nhắn
+                <>
+                  <ScrollArea className="flex-1 px-4 py-3 space-y-3 h-[70%]">
+                    <div className="space-y-1">
+                      {Object.entries(
+                        groupMessagesByDate(conversation?.messages || [])
+                      ).map(([dateLabel, msgs]) => (
                         <div key={dateLabel}>
                           <div className="text-center text-xs text-gray-500 mb-2">
                             {dateLabel}
@@ -247,14 +311,38 @@ export const Chat = () => {
                             const isSameSender =
                               prevMsg?.sender_id === msg.sender_id;
                             const marginTop = isSameSender ? "mt-2" : "mt-4";
+                            const meta = msg.meta;
 
                             return (
                               <div
                                 key={msg.id}
-                                className={`flex gap-2 items-end ${marginTop} ${
-                                  isMe ? "justify-end" : "justify-start"
+                                className={`flex flex-col gap-1 ${marginTop} ${
+                                  isMe ? "items-end" : "items-start"
                                 }`}
                               >
+                                {meta?.type === "product" && (
+                                  <Link
+                                    to={meta.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="rounded px-2 py-1 flex gap-1 items-start bg-white shadow max-w-[80%]"
+                                  >
+                                    <img
+                                      src={meta.image}
+                                      alt={meta.name}
+                                      className="w-12 h-12 rounded object-cover"
+                                    />
+                                    <div className="flex flex-col">
+                                      <span className="text-xs font-medium">
+                                        {meta.name}
+                                      </span>
+                                      <span className="text-xs">
+                                        {formatCurrency(meta.price)}
+                                      </span>
+                                    </div>
+                                  </Link>
+                                )}
+
                                 <div
                                   className={`px-2 py-1 rounded-md max-w-[80%] text-sm shadow flex flex-col ${
                                     isMe
@@ -271,41 +359,25 @@ export const Chat = () => {
                             );
                           })}
                         </div>
-                      )
-                    )}
-                    <div ref={messagesEndRef} />
-                  </div>
-                ) : (
-                  <div className="h-[430px] flex items-center justify-center text-sm text-gray-500">
-                    Bắt đầu trả lời người mua!
-                  </div>
-                )}
-              </ScrollArea>
+                      ))}
+                      <div ref={messagesEndRef} />
+                    </div>
+                  </ScrollArea>
 
-              {/* Ô nhập */}
-              {selectedConversationId && (
-                <div className="border-t bg-white shrink-0">
-                  <Input
-                    placeholder="Nhập nội dung tin nhắn..."
-                    className="text-sm resize-none border-0 shadow-none !ring-0"
-                    value={messageInput}
-                    onChange={(e) => setMessageInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleSendMessage();
-                      }
-                    }}
+                  {/* Ô nhập */}
+                  {selectedConversationId && (
+                    <ChatInput onSend={handleSendMessage} />
+                  )}
+                </>
+              ) : (
+                <div className="flex flex-1 items-center justify-center flex-col gap-2">
+                  <img
+                    src="/image/spark-icon.svg"
+                    alt="cat_may_choi_game"
+                    className="w-15 h-auto"
                   />
-                  <div className="flex items-center justify-end px-2 py-2 space-x-2">
-                    <Send
-                      className={cn(
-                        "size-4",
-                        messageInput.trim()
-                          ? "text-blue-600 cursor-pointer"
-                          : "text-gray-400"
-                      )}
-                      onClick={handleSendMessage}
-                    />
+                  <div className="text-md text-gray-500">
+                    Bắt đầu chat ngay!
                   </div>
                 </div>
               )}

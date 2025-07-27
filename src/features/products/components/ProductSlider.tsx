@@ -7,9 +7,10 @@ import { Product } from "../types/product.type";
 
 type ProductListProps = {
   products: Product[];
+  hasBorder?: boolean;
 };
 
-export default function ProductSlider({ products }: ProductListProps) {
+export default function ProductSlider({ products,hasBorder=false }: ProductListProps) {
   const [visibleSlides, setVisibleSlides] = useState(5);
   useEffect(() => {
     const updateVisibleSlides = () => {
@@ -58,8 +59,8 @@ export default function ProductSlider({ products }: ProductListProps) {
         speed={500}
       >
         {products.map((product) => (
-          <SwiperSlide key={product.id} className="">
-            <ProductCard product={product} />
+          <SwiperSlide key={product.id} className="!h-full">
+            <ProductCard product={product} hasBorder={hasBorder} />
           </SwiperSlide>
         ))}
       </Swiper>

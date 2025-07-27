@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProductCardSkeleton() {
   return (
-    <div className="flex flex-col h-full  w-full  border rounded-xl overflow-hidden bg-white">
+    <div className="flex flex-col h-full  w-full  border rounded-md overflow-hidden bg-white">
       {/* Hình ảnh sản phẩm (aspect-square) */}
       <div className="relative aspect-square mb-4 overflow-hidden">
         <Skeleton className="aspect-square rounded-none rounded-t-md" />

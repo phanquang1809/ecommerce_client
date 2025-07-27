@@ -2,10 +2,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CircleAlert, Eye, Loader, Plus, X } from "lucide-react";
+import { 
+  CircleAlert,
+  //  Eye,
+    Loader, Plus, X } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   createProduct,
   getFormData,
@@ -15,7 +18,7 @@ import {
 } from "@/services/seller/productServices";
 import ImageUpload from "@/features/products/components/image-upload/ImageUpload";
 import ProductOptions from "@/features/products/components/options/ProductOptions";
-import Preview from "@/features/products/components/preview/Preview";
+// import Preview from "@/features/products/components/preview/Preview";
 import CategorySelect from "@/features/products/components/CategorySelect";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -687,7 +690,7 @@ export default function ProductAddEdit() {
           </Button>
         </div>
       </section>
-      <section className="w-90 self-start sticky top-19">
+      {/* <section className="w-90 self-start sticky top-19">
         <Card className="shadow-none rounded-md py-4">
           <CardHeader>
             <div className="flex items-center justify-between w-full">
@@ -706,7 +709,7 @@ export default function ProductAddEdit() {
             </CardContent>
           </ScrollArea>
         </Card>
-      </section>
+      </section> */}
       <Dialog open={openDialogCancel} onOpenChange={setOpenDialogCancel}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>

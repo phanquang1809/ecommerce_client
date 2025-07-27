@@ -13,15 +13,14 @@ import { AxiosError } from "axios";
 
 interface CartState {
   items: CartItem[];
-  shop_info: { id: number; name: string; url: string }[];
+  shop_info: { id: number; name: string; slug: string }[];
   selectedItems: number[]; // key dạng `${productId}-${variantId}`
   loading: boolean;
-
   getCart: () => Promise<{
     status: string;
     message: string;
     items: CartItem[];
-    shop_info: { id: number; name: string; url: string }[];
+    shop_info: { id: number; name: string; slug: string }[];
   }>;
   setCart: (items: CartItem[]) => void;
 

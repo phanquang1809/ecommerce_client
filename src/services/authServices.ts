@@ -25,6 +25,20 @@ export const login = async (
     );
   }
 };
+export const loginWithSocialAccount = async (
+  provider: string,
+) => {
+  try {
+    const response = await api.get<{url: string}>("/auth/"+provider+"/redirect");
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError<{ status: string; message: string }>;
+    throw new Error(
+      axiosError.response?.data.message ||
+        "Lỗi không xác định, vui lòng thử lại!"
+    );
+  }
+};
 
 export const logout = async () => {
   try {
@@ -117,28 +131,6 @@ export const checkUserExist= async (userInput:string) => {
     }
 };
 
-// export const checkAuth = (): User | null => {
-//   const token = localStorage.getItem("token");
-//   if (!token) return null;
-
-//   try {
-//     const decoded: { exp: number; user: User } = jwtDecode(token);
-//     const now = Math.floor(Date.now() / 1000);
-
-//     // Kiểm tra token hết hạn
-//     if (decoded.exp < now) {
-//       console.log("Token đã hết hạn!");
-//       localStorage.removeItem("token");
-//       return null;
-//     }
-//     // Trả về thông tin user nếu token còn hiệu lực
-//     return decoded.user;
-//   } catch (error) {
-//     console.error("Lỗi giải mã token!", error);
-//     localStorage.removeItem("token");
-//     return null;
-//   }
-// };
 export const checkAuth= async (): Promise<User | null> => {
   try {
       const res = await authApi.get("/auth/me", { withCredentials: true });
@@ -197,6 +189,126 @@ export const forgotPassword = async (
       status: axiosError.response?.data.status,
       message:
         axiosError.response?.data.message ||
+        "Lỗi không xác định, vui lòng thử lại!",
+    };
+  }
+};
+export const updateEmail = async (
+  email: string
+): Promise<{ status: string; message: string }> => {
+  try {
+    const response = await authApi.put("/auth/update-email", { email });
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError<{ status: string; message: string }>;
+    return {
+      status: axiosError.response?.data?.status || "error",
+      message:
+        axiosError.response?.data?.message ||
+        "Lỗi không xác định, vui lòng thử lại!",
+    };
+  }
+};
+
+export const updatePhone = async (
+  phone: string
+): Promise<{ status: string; message: string }> => {
+  try {
+    const response = await authApi.put("/auth/update-phone", { phone });
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError<{ status: string; message: string }>;
+    return {
+      status: axiosError.response?.data?.status || "error",
+      message:
+        axiosError.response?.data?.message ||
+        "Lỗi không xác định, vui lòng thử lại!",
+    };
+  }
+};
+
+export const updatePassword = async (
+  password: string
+): Promise<{ status: string; message: string }> => {
+  try {
+    const response = await authApi.put("/auth/update-password", { password });
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError<{ status: string; message: string }>;
+    return {
+      status: axiosError.response?.data?.status || "error",
+      message:
+        axiosError.response?.data?.message ||
+        "Lỗi không xác định, vui lòng thử lại!",
+    };
+  }
+};
+export const updateProfile = async (
+  data: FormData
+): Promise<{ status: string; message: string }> => {
+  try {
+    const response = await authApi.post("/auth/update-profile", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError<{ status: string; message: string }>;
+    return {
+      status: axiosError.response?.data?.status || "error",
+      message:
+        axiosError.response?.data?.message ||
+        "Lỗi không xác định, vui lòng thử lại!",
+    };
+  }
+};
+export const updateAvatar = async (
+  image: string
+): Promise<{ status: string; message: string }> => {
+  try {
+    const response = await authApi.post(
+      "/auth/update-avatar",
+      { image }, // gửi object có key `image`
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError<{
+      status: string;
+      message: string;
+    }>;
+    return {
+      status: axiosError.response?.data?.status || "error",
+      message:
+        axiosError.response?.data?.message ||
+        "Lỗi không xác định, vui lòng thử lại!",
+    };
+  }
+};
+export const uploadImage = async (
+  file: File
+): Promise<{  message: string, status: string, url: string }> => {
+  try {
+     const formData = new FormData();
+    formData.append("image", file);
+    const response = await authApi.post("/auth/upload-image", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError<{ status: string; message: string }>;
+    return {
+      status: axiosError.response?.data?.status || "error",
+      url: "",
+      message:
+        axiosError.response?.data?.message ||
         "Lỗi không xác định, vui lòng thử lại!",
     };
   }

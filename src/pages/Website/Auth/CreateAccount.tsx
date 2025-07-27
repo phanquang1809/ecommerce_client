@@ -197,6 +197,7 @@ export default function CreateAccount({
           </Button>
         )}
         <AddressSelect
+          title="Chọn địa chỉ nhận hàng"
           address={address||{province: {label: "", value: ""}, district: {label: "", value: ""}, ward: {label: "", value: ""}, addressDetail: ""}}
           open={isOpen}
           onOpenChange={setIsOpen}

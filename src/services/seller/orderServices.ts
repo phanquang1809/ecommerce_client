@@ -23,9 +23,10 @@ export type Order = {
     receiver_phone: string;
   };
   shop?: {
+    owner_id: number;
     name: string;
     logo: string;
-    url: string;
+    slug: string;
   }
   shipping_address: string;
   items: {

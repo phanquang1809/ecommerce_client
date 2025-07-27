@@ -8,12 +8,9 @@ import Contact from "@/pages/Website/Contact";
 import Home from "@/pages/Website/Home";
 import Login from "@/pages/Website/Login";
 import AdminLogin from "@/pages/Admin/Login/AdminLogin";
-import UserProfile from "@/pages/Website/UserProfile";
 import UserWishlist from "@/pages/Website/UserWishlist";
 import UserWallet from "@/pages/Website/UserWallet";
 import UserLayout from "@/layouts/website/UserLayout";
-import UserDashboard from "@/pages/Website/UserDashboard";
-import UserAddress from "@/pages/Website/UserAddress";
 import UserVoucher from "@/pages/Website/UserVoucher";
 import ProtectedRoute from "@/routes/ProtectedRotue";
 import AdminLayout from "@/layouts/AdminLayout";
@@ -31,7 +28,6 @@ import SellerList from "./pages/Admin/Sellers/SellerList/SellerList";
 import SellerProfile from "./pages/Admin/Sellers/SellerProfile/SellerProfile";
 import Transporters from "./pages/Admin/Transporters/Transporters";
 import ProductDetails from "./pages/Website/ProductDetails/ProductDetails";
-import ShopDetails from "./pages/Website/Shop/ShopDetails";
 import CategoryDetails from "./pages/Website/Category/CategoryDetails";
 import Media from "./pages/Seller/Media/Media";
 import ListPromotion from "./pages/Seller/Promotions/ListPromotion/ListPromotion";
@@ -48,6 +44,12 @@ import OrderList from "./pages/Seller/Orders/Orders";
 import { OrderDetail } from "./pages/Seller/Orders/OrderDetail";
 import OrderHistory from "@/pages/Website/Orders/OrderHistory";
 import { OrderDetails } from "./pages/Website/Orders/OrderDetails";
+import UserProfile from "./pages/Website/Profile/UserProfile";
+import UserAddress from "./pages/Website/Profile/Address/UserAddress";
+import GoogleCallback from "./pages/Website/Auth/GoogleCallback";
+import NotFound from "./pages/NotFound";
+import { ShopDetails } from "./pages/Website/Shop/ShopDetails";
+import { Categories } from "./pages/Seller/Categories/Categories";
 
 // export const categoryLoader = async ({ params }: LoaderFunctionArgs) => {
 //     const { slug } = params;
@@ -59,137 +61,148 @@ import { OrderDetails } from "./pages/Website/Orders/OrderDetails";
 
 // Khai báo router theo chuẩn v6
 const router = createBrowserRouter([
-    // 👉 Đăng nhập Admin (không cần bảo vệ)
-    {
-        path: "/admin/login",
-        element: <AdminLogin />,
-    },
-   
-    // 👉 Khu vực Admin (Yêu cầu đăng nhập)
-    {
-        path: "/admin",
-        element: <ProtectedRoute allowedRoles={["admin"]} redirectTo="/" />, // Chỉ Admin mới truy cập được
-        children: [
-            {
-                path: "",
-                element: <AdminLayout />,
-                children: [
-                    { path: "", element: <Dashboard /> },
-                    { path: "customers", element: <CustomerList /> },
-                    { path: "customers/details/:id", element: <CustomerDetails /> },
-                    { path: "categories/groups", element: <CategoryGroups /> },
-                    { path: "categories/subgroups", element: <CategorySubGroups /> },
-                    { path: "categories/subcategories", element: <SubCategories /> },
-                    { path: "attributes", element: <AttributeList /> },
-                    { path: "brands", element: <BrandList /> },
+  // 👉 Đăng nhập Admin (không cần bảo vệ)
+  {
+    path: "/admin/login",
+    element: <AdminLogin />,
+  },
 
-                    { path: "shops", element: <SellerList /> },
-                    { path: "shops/:slug", element: <SellerProfile /> },
-                    { path: "settings", element: <Settings /> },
-                    // { path: "products/all", element: <AllProduct /> },
-                    // { path: "products/add", element: <AddProduct /> },
-                    { path: "profile", element: <AdminProfile /> },
-                    { path: "transporters", element: <Transporters /> },
-                    { path: "payment-methods", element: <PaymentMethodList /> },
-
-                    { path: "media", element: <Media /> },
-                ],
-            },
-        ],
-    },
-    // 👉 Website (không yêu cầu đăng nhập)
-    {
-        path: "/",
-        element: <WebsiteLayout />,
+  // 👉 Khu vực Admin (Yêu cầu đăng nhập)
+  {
+    path: "/admin",
+    element: <ProtectedRoute allowedRoles={["admin"]} redirectTo="/" />, // Chỉ Admin mới truy cập được
+    children: [
+      {
+        path: "",
+        element: <AdminLayout />,
         children: [
-            { path: "", element: <Home /> },
-            { path: "about", element: <About /> },
-            { path: "contact", element: <Contact /> },
-            { path: "cart", element: <Cart /> },
-            {
-                path: ":slug",
-                element: <CategoryDetails />,
-                // loader: categoryLoader,
-                // errorElement: <NotFound />,
-            },
-            {
-                path: "products/:shop/:slug",
-                element: <ProductDetails />,
-            },
-            {
-                path: "shops/:slug",
-                element: <ShopDetails />,
-            },
-            // 👉 Khu vực tài khoản user (Yêu cầu đăng nhập)
-            {
-                path: "customer",
-                element:<ProtectedRoute allowedRoles={["user","shop"]} redirectTo="/customer/account/login" />, // Chỉ cần đăng nhập, không phân biệt admin/user
-                children: [
-                    {
-                        path: "",
-                        element: <UserLayout />,
-                        children: [
-                            { index: true, element: <Navigate to="info" replace /> },
-                            { path: "info", element: <UserProfile /> },
-                            { path: "wishlist", element: <UserWishlist /> },
-                            { path: "walmart-wallet", element: <UserWallet /> },
-                            { path: "dashboard", element: <UserDashboard /> },
-                            { path: "order/history", element: <OrderHistory /> },
-                            { path: "order/view/:number", element: <OrderDetails /> },
-                            { path: "address", element: <UserAddress /> },
-                            { path: "voucher", element: <UserVoucher /> },
-                        ],
-                    },
-                ],
-            },
-            {
-                path: "checkout",
-                element: <CheckoutPage />,
-            },
-            {
-                path: "checkout/payment-qr",
-                element: <CheckoutPayment />,
-            },
-        ],
-    },
+          { path: "", element: <Dashboard /> },
+          { path: "customers", element: <CustomerList /> },
+          { path: "customers/details/:id", element: <CustomerDetails /> },
+          { path: "categories/groups", element: <CategoryGroups /> },
+          { path: "categories/subgroups", element: <CategorySubGroups /> },
+          { path: "categories/subcategories", element: <SubCategories /> },
+          { path: "attributes", element: <AttributeList /> },
+          { path: "brands", element: <BrandList /> },
 
-    // 👉 Đăng nhập User (không cần bảo vệ)
-    {
-        path: "/customer/account/:section",
-        element: <Login />,
-    },
-    {
-        path: "/seller/:section",
-        element: <SellerLogin />,
-    },
-    {
-        path: "/seller/edit",
-        element: <SellerEdit />,
-    },
-    {
-        path: "/seller",
-        element: <ProtectedRoute allowedRoles={["shop"]} redirectTo="/seller/login" />, // Chỉ Admin mới truy cập được
-        children: [
-            {
-                path: "",
-                element: <AdminLayout />,
-                children: [
-                    { path: "", element: <SellerDashboard /> },
-                    { path: "orders", element: <OrderList /> },
-                    { path: "orders/:number", element: <OrderDetail /> },
-                    { path: "products", element: <ProductList /> },
-                    { path: "products/add", element: <ProductAddEdit /> },
-                    { path: "products/edit/:slug", element: <ProductAddEdit /> },
-                    { path: "media", element: <Media /> },
-                    { path: "promotions", element: <ListPromotion /> },
-                    { path: "promotions/flash-sale", element: <FlashSale /> },
-                    { path: "promotions/discount/create", element: <Discount /> },
-                    { path: "promotions/voucher/create", element: <Voucher /> },
-                ],
-            },
+          { path: "shops", element: <SellerList /> },
+          { path: "shops/:slug", element: <SellerProfile /> },
+          { path: "settings", element: <Settings /> },
+          // { path: "products/all", element: <AllProduct /> },
+          // { path: "products/add", element: <AddProduct /> },
+          { path: "profile", element: <AdminProfile /> },
+          { path: "transporters", element: <Transporters /> },
+          { path: "payment-methods", element: <PaymentMethodList /> },
+
+          { path: "media", element: <Media /> },
         ],
-    },
+      },
+    ],
+  },
+  // 👉 Website (không yêu cầu đăng nhập)
+  {
+    path: "/",
+    element: <WebsiteLayout />,
+    children: [
+      { path: "", element: <Home /> },
+      { path: "about", element: <About /> },
+      { path: "contact", element: <Contact /> },
+      { path: "cart", element: <Cart /> },
+      {
+        path: ":slug",
+        element: <CategoryDetails />,
+      },
+      {
+        path: "products/:shop/:slug",
+        element: <ProductDetails />,
+      },
+      {
+        path: "cua-hang/:slug",
+        element: <ShopDetails />,
+      },
+      {
+        path: "customer",
+        element: (
+          <ProtectedRoute
+            allowedRoles={["user", "shop"]}
+            redirectTo="/customer/account/login"
+          />
+        ), // Chỉ cần đăng nhập, không phân biệt admin/user
+        children: [
+          {
+            path: "",
+            element: <UserLayout />,
+            children: [
+              { index: true, element: <Navigate to="info" replace /> },
+              { path: "info", element: <UserProfile /> },
+              { path: "wishlist", element: <UserWishlist /> },
+              { path: "walmart-wallet", element: <UserWallet /> },
+              { path: "order/history", element: <OrderHistory /> },
+              { path: "order/view/:number", element: <OrderDetails /> },
+              { path: "address", element: <UserAddress /> },
+              { path: "voucher", element: <UserVoucher /> },
+            ],
+          },
+        ],
+      },
+      {
+        path: "checkout",
+        element: <CheckoutPage />,
+      },
+      {
+        path: "checkout/payment-qr",
+        element: <CheckoutPayment />,
+      },
+    ],
+  },
+
+  // 👉 Đăng nhập User (không cần bảo vệ)
+  {
+    path: "/customer/login/auth/google",
+    element: <GoogleCallback />,
+  },
+  {
+    path: "/customer/account/:section",
+    element: <Login />,
+  },
+  {
+    path: "/seller/:section",
+    element: <SellerLogin />,
+  },
+  {
+    path: "/seller/edit",
+    element: <SellerEdit />,
+  },
+  {
+    path: "/seller",
+    element: (
+      <ProtectedRoute allowedRoles={["shop"]} redirectTo="/seller/login" />
+    ), // Chỉ Admin mới truy cập được
+    children: [
+      {
+        path: "",
+        element: <AdminLayout />,
+        children: [
+          { path: "", element: <SellerDashboard /> },
+          { path: "orders", element: <OrderList /> },
+          { path: "orders/:number", element: <OrderDetail /> },
+          { path: "products", element: <ProductList /> },
+          { path: "products/add", element: <ProductAddEdit /> },
+          { path: "products/edit/:slug", element: <ProductAddEdit /> },
+          { path: "media", element: <Media /> },
+          { path: "promotions", element: <ListPromotion /> },
+          { path: "promotions/flash-sale", element: <FlashSale /> },
+          { path: "promotions/discount/create", element: <Discount /> },
+          { path: "promotions/voucher/create", element: <Voucher /> },
+          { path: "categories", element: <Categories /> },
+        ],
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
 ]);
-
 
 export default router;

@@ -15,11 +15,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { formatCurrency } from "@/utils/format";
 import useUserStore from "@/store/userStore";
-import { Separator } from "@/components/ui/separator";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import VariantStockUpdatedListener, {
   VariantStockUpdatedEvent,
 } from "./VariantStockUpdatedListener";
+import ShippingAddress from "./ShippingAddress ";
 export default function Cart() {
   const navigate = useNavigate();
   const {
@@ -34,6 +34,8 @@ export default function Cart() {
   } = useCartStore();
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const { user } = useUserStore();
+  const [selectedAddress, setSelectedAddress] = useState(user?.address);
+
   if (loading && items.length === 0) {
     return (
       <div className="flex justify-center items-center min-h-[300px]">
@@ -142,7 +144,7 @@ export default function Cart() {
             </div>
           </div>
           <div className="w-full lg:w-[300px] space-y-3">
-            <div className="bg-white rounded-md p-4">
+            {/* <div className="bg-white rounded-md p-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold mb-2">Giao tới</h3>
                 <Link
@@ -155,25 +157,29 @@ export default function Cart() {
               <div className="text-sm">
                 <div className="flex items-center gap-1.5 font-semibold">
                   <p className="">
-                    {user?.default_address?.customer_name || user?.user_name}
+                    {user?.address?.customer_name || user?.user_name}
                   </p>
                   <Separator orientation="vertical" className="!h-4" />
                   <p>
-                    {user?.default_address?.customer_phone_number ||
+                    {user?.address?.customer_phone_number ||
                       user?.phone}
                   </p>
                 </div>
                 <p className="text-gray-600">
-                  {user?.default_address?.address +
+                  {user?.address?.address +
                     ", " +
-                    user?.default_address?.ward +
+                    user?.address?.ward +
                     ", " +
-                    user?.default_address?.district +
+                    user?.address?.district +
                     ", " +
-                    user?.default_address?.province}
+                    user?.address?.province}
                 </p>
               </div>
-            </div>
+            </div> */}
+            <ShippingAddress
+              setSelectedAddress={setSelectedAddress}
+              selectedAddress={selectedAddress}
+            />
             <div className="bg-white rounded-md p-4">
               <div className="flex justify-between text-sm mb-1">
                 <span>Tổng tiền hàng</span>

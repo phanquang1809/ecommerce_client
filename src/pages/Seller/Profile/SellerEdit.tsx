@@ -241,6 +241,7 @@ export default function SellerEdit() {
             </Button>
           )}
           <AddressSelect
+            title="Chọn địa chỉ lấy hàng"
             address={address}
             open={isOpen}
             onOpenChange={setIsOpen}

@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  ChartPieIcon,
   DocumentTextIcon,
   GiftIcon,
   HeartIcon,
@@ -20,11 +19,6 @@ import { cn } from "@/lib/utils"; // Utility for conditional classNames (from sh
 import { UserRound } from "lucide-react";
 
 const menuItems = [
-  {
-    label: "Thống Kê",
-    icon: ChartPieIcon,
-    key: "/customer/dashboard",
-  },
   {
     label: "Thông Tin",
     icon: UserCircleIcon,
@@ -76,16 +70,19 @@ const UserLayout = () => {
       <div className="flex gap-2">
         {/* Sidebar */}
         <aside className="w-64 h-fit">
-          <div className="flex items-start gap-3 mb-2">
-            <Avatar className="h-15 w-15 rounded-md">
-              <AvatarImage className="rounded-md" src={user?.avatar} alt={user?.full_name || user?.user_name} />
-              <AvatarFallback className="rounded-md bg-blue-900 text-white">
+          <div className="flex items-start gap-2 mb-2">
+            <Avatar className="h-15 w-15 bg-white">
+              <AvatarImage className="" src={user?.avatar} alt={user?.full_name || user?.user_name} />
+              <AvatarFallback className=" bg-blue-900 text-white">
                 <UserRound className="h-10 w-10 "/>
               </AvatarFallback>
             </Avatar>
-            <span className="font-medium text-lg text-gray-900 dark:text-gray-100">
+           <div>
+             <p className="font-medium text-lg text-blue-900">Xin chào</p>
+             <span className="font-medium text-md ">
               {user ? user.full_name || user.user_name : "Khách"}
             </span>
+           </div>
           </div>
           <nav className="space-y-1 pr-4 border-gray-200">
             {menuItems.map((item) => (
